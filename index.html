@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arbitrázs Kalkulátor – Dark Mode</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #121212, #1e1e1e);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      height: 100vh;
+      margin: 0;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #e0e0e0;
+    }
+    .calculator {
+      background: #222831dd;
+      padding: 30px 35px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.9);
+      width: 360px;
+      max-width: 100%;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    .calculator:hover {
+      transform: scale(1.02);
+    }
+    h1 {
+      margin-bottom: 22px;
+      font-weight: 700;
+      color: #00ff88;
+      letter-spacing: 1px;
+      font-size: 1.8rem;
+    }
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #b0b0b0;
+      font-size: 1rem;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 2px solid #444c56;
+      background-color: #1f262d;
+      color: #e0e0e0;
+      outline-color: #00ff88;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+      box-sizing: border-box;
+      margin-bottom: 4px;
+    }
+    input[type="number"]::placeholder {
+      color: #777c85;
+    }
+    input[type="number"]:focus {
+      border-color: #00ff88;
+      box-shadow: 0 0 8px #00ff8844;
+    }
+    button,
+    .book-link {
+      margin-top: 24px;
+      width: 100%;
+      display: inline-block;
+      text-decoration: none;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      padding: 14px 0;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    button {
+      background: linear-gradient(90deg, #00c853, #009624);
+      border: none;
+      color: white;
+      box-shadow: 0 4px 15px rgba(0, 200, 83, 0.7);
+      transition: background 0.3s ease, box-shadow 0.25s ease;
+    }
+    button:hover,
+    button:focus {
+      background: linear-gradient(90deg, #009624, #00c853);
+      box-shadow: 0 6px 20px rgba(0, 200, 83, 0.9);
+    }
+    .book-link {
+      background: linear-gradient(90deg, #00ffcc, #00bfa5);
+      color: #1e1e1e;
+      box-shadow: 0 4px 15px rgba(0, 255, 204, 0.7);
+      transition: background 0.3s ease, box-shadow 0.25s ease;
+    }
+    .book-link:hover,
+    .book-link:focus {
+      background: linear-gradient(90deg, #00bfa5, #00ffcc);
+      box-shadow: 0 6px 20px rgba(0, 255, 204, 0.9);
+    }
+    .result {
+      margin-top: 28px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      line-height: 1.5;
+      color: #e0e0e0;
+      text-align: left;
+    }
+    .row {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .label-text {
+      color: #b0b0b0;
+      font-weight: 600;
+    }
+    .value-input {
+      background-color: #1f262d;
+      border: 2px solid #444c56;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-weight: 800;
+      width: 90px;
+      text-align: right;
+      padding: 4px 8px;
+    }
+    .value-input:focus {
+      border-color: #00ff88;
+      box-shadow: 0 0 8px #00ff8844;
+    }
+    .value-text {
+      color: #00ff88;
+      font-weight: 800;
+      text-shadow: 0 0 6px #00ff8844;
+    }
+    .guaranteed-label {
+      color: #a0ffb4;
+      font-weight: 700;
+    }
+    .guaranteed-value {
+      color: #a0ffb4;
+      font-weight: 800;
+      text-shadow: 0 0 8px #a0ffb455;
+    }
+    .tip-label {
+      color: #ffd166;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-top: 16px;
+    }
+    .tip-value {
+      color: #ffd166;
+      font-weight: 600;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+    .error {
+      color: #ff5252;
+      margin-top: 14px;
+      font-weight: 600;
+    }
+    @media (max-width: 400px) {
+      .calculator {
+        padding: 25px 20px;
+        width: 100%;
+        box-shadow: none;
+        border-radius: 12px;
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 18px;
+      }
+      label {
+        font-size: 0.9rem;
+        margin-top: 14px;
+        margin-bottom: 6px;
+      }
+      input[type="number"], .value-input {
+        font-size: 0.95rem;
+        padding: 10px 12px;
+        width: 100%;
+      }
+      button, .book-link {
+        font-size: 1.1rem;
+        padding: 12px 0;
+      }
+      .result {
+        font-size: 1rem;
+        margin-top: 22px;
+      }
+      .row {
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .value-input {
+        width: 100%;
+        margin-top: 6px;
+      }
+      .tip-label, .tip-value {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator" role="main" aria-label="Arbitrázs kalkulátor">
+    <h1>Arbitrázs Kalkulátor</h1>
+
+    <!-- Dinamikus címkék URL alapján (opcionális) -->
+    <label for="odds1" id="labelOdds1">Odds 1</label>
+    <input
+      type="number"
+      id="odds1"
+      step="0.01"
+      min="1.01"
+      placeholder="pl. 1,74"
+      value="1.74"
+    />
+
+    <label for="odds2" id="labelOdds2">Odds 2</label>
+    <input
+      type="number"
+      id="odds2"
+      step="0.01"
+      min="1.01"
+      placeholder="pl. 2,63"
+      value="2.63"
+    />
+
+    <!-- Teljes tét – alapból 10000 Ft -->
+    <label for="stake">Teljes tét (Ft)</label>
+    <input
+      type="number"
+      id="stake"
+      step="1"
+      min="1"
+      placeholder="pl. 10000"
+      value="10000"
+    />
+
+    <!-- Számolás gomb -->
+    <button
+      id="calcButton"
+      type="button"
+      onclick="initCalculate()"
+      aria-label="Számolás indítása"
+    >
+      Számolás
+    </button>
+
+    <!-- Fogadóirodák linkjei (alapból rejtve) -->
+    <a
+      id="tippmixproLink"
+      class="book-link"
+      href="https://www.tippmixpro.hu/"
+      target="_blank"
+      rel="noopener"
+      style="display:none"
+    >
+      TippMixPro
+    </a>
+    <a
+      id="vegasLink"
+      class="book-link"
+      href="https://vegas.hu/betting"
+      target="_blank"
+      rel="noopener"
+      style="display:none"
+    >
+      Vegas
+    </a>
+    <a
+      id="piwiLink"
+      class="book-link"
+      href="https://www.piwi247.com/sports"
+      target="_blank"
+      rel="noopener"
+      style="display:none"
+    >
+      Piwi247
+    </a>
+    <a
+      id="boabetLink"
+      class="book-link"
+      href="https://play.boabet-134.com/en/sportsbook/"
+      target="_blank"
+      rel="noopener"
+      style="display:none"
+    >
+      BoaBet
+    </a>
+    <a
+      id="betiniaLink"
+      class="book-link"
+      href="https://betinia9.com/hu/sport?page=overview"
+      target="_blank"
+      rel="noopener"
+      style="display:none"
+    >
+      Betinia
+    </a>
+    <a
+      id="betinasiaLink"
+      class="book-link"
+      href="https://black.betinasia.com/login?next=/trade"
+      target="_blank"
+      rel="noopener"
+      style="display:none"
+    >
+      BetInAsia
+    </a>
+
+    <div id="error" class="error" role="alert"></div>
+    <div id="result" class="result" aria-live="polite"></div>
+  </div>
+
+  <script>
+    // Globális változók
+    let stake1Input, stake2Input;
+    let isUpdating = false;
+
+    // Forrásmezők a DOM-ból
+    const odds1Field    = document.getElementById('odds1');
+    const odds2Field    = document.getElementById('odds2');
+    const stakeField    = document.getElementById('stake');
+    const labelOdds1    = document.getElementById('labelOdds1');
+    const labelOdds2    = document.getElementById('labelOdds2');
+    const calcButton    = document.getElementById('calcButton');
+    const tippLink      = document.getElementById('tippmixproLink');
+    const vegasLink     = document.getElementById('vegasLink');
+    const piwiLink      = document.getElementById('piwiLink');
+    const boabetLink    = document.getElementById('boabetLink');
+    const betiniaLink   = document.getElementById('betiniaLink');
+    const betinasiaLink = document.getElementById('betinasiaLink');
+    const resultDiv     = document.getElementById('result');
+    const errorDiv      = document.getElementById('error');
+
+    // Betöltéskor először az URL-paraméterek, majd az alapértékek alapján kiegészítjük,
+    // végül rögtön kiszámolunk:
+    window.addEventListener('DOMContentLoaded', () => {
+      applyURLParamsToFields();
+      initCalculate();
+    });
+
+    // URL paraméterek beállítása betöltéskor
+    function applyURLParamsToFields() {
+      const params = new URLSearchParams(window.location.search);
+
+      // Dinamikus címkék (opcionális)
+      const customLabel1 = params.get('odds1Label');
+      const customLabel2 = params.get('odds2Label');
+      if (customLabel1) labelOdds1.textContent = customLabel1;
+      if (customLabel2) labelOdds2.textContent = customLabel2;
+
+      // Alap-oddsok az URL alapján (felülírja az alapértéket)
+      const o1 = parseFloat(params.get('odds1'));
+      const o2 = parseFloat(params.get('odds2'));
+      if (!isNaN(o1) && o1 > 1) odds1Field.value = o1.toFixed(2);
+      if (!isNaN(o2) && o2 > 1) odds2Field.value = o2.toFixed(2);
+
+      // Alap-tét az URL alapján (felülírja az alapértéket)
+      const t = parseFloat(params.get('stake'));
+      if (!isNaN(t) && t > 0) stakeField.value = t.toFixed(0);
+
+      // Fogadóirodák kezelése: TippMixPro, Vegas, Piwi247, BoaBet, Betinia, BetInAsia
+      const odds1Book = params.get('odds1Book');
+      const odds2Book = params.get('odds2Book');
+
+      // Először elrejtem mind az hat link-gombot
+      tippLink.style.display      = 'none';
+      vegasLink.style.display     = 'none';
+      piwiLink.style.display      = 'none';
+      boabetLink.style.display    = 'none';
+      betiniaLink.style.display   = 'none';
+      betinasiaLink.style.display = 'none';
+
+      // TippMixPro ellenőrzés
+      if (
+        (odds1Book && odds1Book.toLowerCase() === 'tippmixpro') ||
+        (odds2Book && odds2Book.toLowerCase() === 'tippmixpro')
+      ) {
+        calcButton.style.display = 'none';
+        tippLink.style.display   = 'inline-block';
+      }
+
+      // Vegas ellenőrzés
+      if (
+        (odds1Book && odds1Book.toLowerCase() === 'vegas') ||
+        (odds2Book && odds2Book.toLowerCase() === 'vegas')
+      ) {
+        calcButton.style.display = 'none';
+        vegasLink.style.display  = 'inline-block';
+      }
+
+      // Piwi247 ellenőrzés
+      if (
+        (odds1Book && odds1Book.toLowerCase() === 'piwi247') ||
+        (odds2Book && odds2Book.toLowerCase() === 'piwi247')
+      ) {
+        calcButton.style.display = 'none';
+        piwiLink.style.display   = 'inline-block';
+      }
+
+      // BoaBet ellenőrzés
+      if (
+        (odds1Book && odds1Book.toLowerCase() === 'boabet') ||
+        (odds2Book && odds2Book.toLowerCase() === 'boabet')
+      ) {
+        calcButton.style.display = 'none';
+        boabetLink.style.display = 'inline-block';
+      }
+
+      // Betinia ellenőrzés
+      if (
+        (odds1Book && odds1Book.toLowerCase() === 'betinia') ||
+        (odds2Book && odds2Book.toLowerCase() === 'betinia')
+      ) {
+        calcButton.style.display    = 'none';
+        betiniaLink.style.display   = 'inline-block';
+      }
+
+      // BetInAsia ellenőrzés
+      if (
+        (odds1Book && odds1Book.toLowerCase() === 'betinasia') ||
+        (odds2Book && odds2Book.toLowerCase() === 'betinasia')
+      ) {
+        calcButton.style.display     = 'none';
+        betinasiaLink.style.display  = 'inline-block';
+      }
+    }
+
+    // URL frissítése, ha Odds1 vagy Odds2 módosul
+    function updateURLParams() {
+      const o1 = parseFloat(odds1Field.value.replace(',', '.'));
+      const o2 = parseFloat(odds2Field.value.replace(',', '.'));
+      if (!isNaN(o1) && !isNaN(o2) && o1 > 1 && o2 > 1) {
+        const base   = window.location.pathname;
+        const newURL = `${base}?odds1=${o1.toFixed(2)}&odds2=${o2.toFixed(2)}`;
+        history.replaceState(null, '', newURL);
+      }
+    }
+
+    // Ha Odds1 vagy Odds2 változik, frissítjük az URL-t és újraszámoljuk
+    ['odds1', 'odds2'].forEach((id) => {
+      document.getElementById(id).addEventListener('input', () => {
+        updateURLParams();
+        stake1Input = null;
+        stake2Input = null;
+        calculateArbitrage();
+      });
+    });
+
+    // Ha a „Teljes tét” mező változik, újraszámol az arbitrázst
+    stakeField.addEventListener('input', () => {
+      stake1Input = null;
+      stake2Input = null;
+      calculateArbitrage();
+    });
+
+    // „Számolás” gomb hívásakor
+    function initCalculate() {
+      stake1Input = null;
+      stake2Input = null;
+      calculateArbitrage();
+    }
+
+    // Fő számítási függvény
+    function calculateArbitrage() {
+      const odds1      = parseFloat(odds1Field.value.replace(',', '.'));
+      const odds2      = parseFloat(odds2Field.value.replace(',', '.'));
+      const totalStake = parseFloat(stakeField.value.replace(',', '.'));
+
+      resultDiv.innerHTML = '';
+      errorDiv.textContent = '';
+
+      // Érvényességi ellenőrzés
+      if (isNaN(odds1) || isNaN(odds2) || isNaN(totalStake)) {
+        errorDiv.textContent = 'Kérjük, adjon meg érvényes számokat minden mezőben.';
+        return;
+      }
+      if (odds1 < 1 || odds2 < 1 || totalStake <= 0) {
+        errorDiv.textContent =
+          'Az oddsok legalább 1-nek, a tét pedig nagyobbnak kell lennie nullánál.';
+        return;
+      }
+
+      // Arbitrázs százalék kiszámítása
+      const arbPercent = 1 / odds1 + 1 / odds2;
+      if (arbPercent >= 1) {
+        errorDiv.textContent =
+          'Nincs arbitrázs lehetőség (arbitrázs % ≥ 100%).';
+        return;
+      }
+
+      // Alapértelmezett tétek kiszámítása
+      const initialStake1 = (totalStake / odds1) / arbPercent;
+      const initialStake2 = (totalStake / odds2) / arbPercent;
+
+      // Ha még nem léteznek a szerkeszthető tétek, létrehozzuk őket
+      if (!stake1Input && !stake2Input) {
+        renderEditableStakes(initialStake1, initialStake2);
+      } else if (!isUpdating) {
+        // Ha már léteznek, frissítjük őket és a teljes tétet
+        isUpdating = true;
+        stake1Input.value = initialStake1.toFixed(0);
+        stake2Input.value = initialStake2.toFixed(0);
+        stakeField.value  = (initialStake1 + initialStake2).toFixed(0);
+        isUpdating = false;
+      }
+
+      // Profitok kiszámítása és megjelenítése
+      updateProfits(odds1, odds2);
+    }
+
+    // Szerkeszthető tétek létrehozása
+    function renderEditableStakes(initialStake1, initialStake2) {
+      resultDiv.innerHTML = '';
+
+      // 1) „<labelOdds1> tét (Ft):”
+      const row1 = document.createElement('div');
+      row1.className = 'row';
+      const label1 = document.createElement('span');
+      label1.className = 'label-text';
+      label1.textContent = `${labelOdds1.textContent} tét (Ft):`;
+      stake1Input = document.createElement('input');
+      stake1Input.type  = 'number';
+      stake1Input.min   = '0';
+      stake1Input.step  = '1';
+      stake1Input.value = initialStake1.toFixed(0);
+      stake1Input.className = 'value-input';
+      stake1Input.addEventListener('input', onStake1Change);
+      row1.appendChild(label1);
+      row1.appendChild(stake1Input);
+
+      // 2) „<labelOdds2> tét (Ft):”
+      const row2 = document.createElement('div');
+      row2.className = 'row';
+      const label2 = document.createElement('span');
+      label2.className = 'label-text';
+      label2.textContent = `${labelOdds2.textContent} tét (Ft):`;
+      stake2Input = document.createElement('input');
+      stake2Input.type  = 'number';
+      stake2Input.min   = '0';
+      stake2Input.step  = '1';
+      stake2Input.value = initialStake2.toFixed(0);
+      stake2Input.className = 'value-input';
+      stake2Input.addEventListener('input', onStake2Change);
+      row2.appendChild(label2);
+      row2.appendChild(stake2Input);
+
+      // 3) Profit: „Ha az 1-es nyer:”
+      const rowProfit1 = document.createElement('div');
+      rowProfit1.className = 'row';
+      rowProfit1.id = 'profit1Row';
+      const labelP1 = document.createElement('span');
+      labelP1.className = 'label-text';
+      labelP1.textContent = 'Ha az 1-es nyer:';
+      const valueP1 = document.createElement('span');
+      valueP1.id = 'profit1Value';
+      valueP1.className = 'value-text';
+      rowProfit1.appendChild(labelP1);
+      rowProfit1.appendChild(valueP1);
+
+      // 4) Profit: „Ha a 2-es nyer:”
+      const rowProfit2 = document.createElement('div');
+      rowProfit2.className = 'row';
+      rowProfit2.id = 'profit2Row';
+      const labelP2 = document.createElement('span');
+      labelP2.className = 'label-text';
+      labelP2.textContent = 'Ha a 2-es nyer:';
+      const valueP2 = document.createElement('span');
+      valueP2.id = 'profit2Value';
+      valueP2.className = 'value-text';
+      rowProfit2.appendChild(labelP2);
+      rowProfit2.appendChild(valueP2);
+
+      // 5) Garantált nyereség sora (szebb stílussal)
+      const rowGuaranteed = document.createElement('div');
+      rowGuaranteed.className = 'row';
+      rowGuaranteed.style.borderTop = '1px solid #444c56';
+      rowGuaranteed.style.paddingTop = '10px';
+      rowGuaranteed.style.marginTop = '12px';
+      const labelG = document.createElement('span');
+      labelG.className = 'guaranteed-label';
+      labelG.textContent = 'Garantált nyereség:';
+      const valueG = document.createElement('span');
+      valueG.id = 'guaranteedValue';
+      valueG.className = 'guaranteed-value';
+      rowGuaranteed.appendChild(labelG);
+      rowGuaranteed.appendChild(valueG);
+
+      // 6) Tippek sorai
+      const params = new URLSearchParams(window.location.search);
+      const tip1Text = params.get('tip1');
+      const tip2Text = params.get('tip2');
+
+      if (tip1Text) {
+        const tipRow1 = document.createElement('div');
+        tipRow1.className = 'row';
+        const tipLabel1 = document.createElement('span');
+        tipLabel1.className = 'tip-label';
+        tipLabel1.textContent = `${labelOdds1.textContent}–tipp:`;
+        const tipValue1 = document.createElement('span');
+        tipValue1.className = 'tip-value';
+        tipValue1.textContent = tip1Text;
+        tipRow1.appendChild(tipLabel1);
+        tipRow1.appendChild(tipValue1);
+        resultDiv.appendChild(tipRow1);
+      }
+
+      if (tip2Text) {
+        const tipRow2 = document.createElement('div');
+        tipRow2.className = 'row';
+        const tipLabel2 = document.createElement('span');
+        tipLabel2.className = 'tip-label';
+        tipLabel2.textContent = `${labelOdds2.textContent}–tipp:`;
+        const tipValue2 = document.createElement('span');
+        tipValue2.className = 'tip-value';
+        tipValue2.textContent = tip2Text;
+        tipRow2.appendChild(tipLabel2);
+        tipRow2.appendChild(tipValue2);
+        resultDiv.appendChild(tipRow2);
+      }
+
+      // Hozzáadjuk a sorokat a resultDiv-hez
+      resultDiv.appendChild(row1);
+      resultDiv.appendChild(row2);
+      resultDiv.appendChild(rowProfit1);
+      resultDiv.appendChild(rowProfit2);
+      resultDiv.appendChild(rowGuaranteed);
+
+      // Első profitfrissítés
+      const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
+      const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
+      updateProfits(odds1, odds2);
+    }
+
+    // Amikor a felhasználó átírja az „Odds 1-re feltenni (Ft)” mezőt
+    function onStake1Change() {
+      if (isUpdating) return;
+      const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
+      const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
+
+      let s1 = parseFloat(stake1Input.value.replace(',', '.'));
+      if (isNaN(s1) || s1 < 0) s1 = 0;
+
+      // Frissítsük a másik tétet: s2 = (s1 * odds1) / odds2
+      const s2 = (s1 * odds1) / odds2;
+
+      isUpdating = true;
+      stake2Input.value = s2.toFixed(0);
+      // Frissítsük a „Teljes tét” mezőt is (tét1 + tét2)
+      stakeField.value = `${(s1 + s2).toFixed(0)}`;
+      isUpdating = false;
+
+      updateProfits(odds1, odds2);
+    }
+
+    // Amikor a felhasználó átírja az „Odds 2-re feltenni (Ft)” mezőt
+    function onStake2Change() {
+      if (isUpdating) return;
+      const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
+      const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
+
+      let s2 = parseFloat(stake2Input.value.replace(',', '.'));
+      if (isNaN(s2) || s2 < 0) s2 = 0;
+
+      // Frissítsük az 1. tétet: s1 = (s2 * odds2) / odds1
+      const s1 = (s2 * odds2) / odds1;
+
+      isUpdating = true;
+      stake1Input.value = s1.toFixed(0);
+      // Frissítsük a „Teljes tét” mezőt is
+      stakeField.value = `${(s1 + s2).toFixed(0)}`;
+      isUpdating = false;
+
+      updateProfits(odds1, odds2);
+    }
+
+    // Profitok kiszámítása és megjelenítése
+    function updateProfits(odds1, odds2) {
+      if (!stake1Input || !stake2Input) return;
+      const s1 = parseFloat(stake1Input.value.replace(',', '.'));
+      const s2 = parseFloat(stake2Input.value.replace(',', '.'));
+      const totalInvested = s1 + s2;
+
+      const profit1 = s1 * odds1 - totalInvested;
+      const profit2 = s2 * odds2 - totalInvested;
+      const guaranteed = Math.min(profit1, profit2);
+      const guaranteedPercent =
+        totalInvested > 0 ? (guaranteed / totalInvested) * 100 : 0;
+
+      document.getElementById('profit1Value').textContent =
+        isNaN(profit1) ? '- Ft' : profit1.toFixed(0) + ' Ft';
+      document.getElementById('profit2Value').textContent =
+        isNaN(profit2) ? '- Ft' : profit2.toFixed(0) + ' Ft';
+      document.getElementById('guaranteedValue').textContent =
+        isNaN(guaranteed)
+          ? '- Ft'
+          : `${guaranteed.toFixed(0)} Ft (${guaranteedPercent.toFixed(2)}%)`;
+    }
+  </script>
+</body>
+</html>
