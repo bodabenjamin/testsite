@@ -9,12 +9,10 @@
       background: linear-gradient(135deg, #121212, #1e1e1e);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
-      height: auto;
       min-height: 100vh;
       margin: 0;
       justify-content: center;
       padding: 20px 10px;
-      box-sizing: border-box;
       color: #e0e0e0;
       overflow-y: auto;
     }
@@ -129,7 +127,8 @@
       margin-top: 12px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
     }
     .label-text {
       color: #b0b0b0;
@@ -176,6 +175,16 @@
       line-height: 1.3;
       margin-bottom: 8px;
       text-align: left;
+    }
+    .eur-value {
+      font-size: 0.75em;
+      color: #23ffd6;
+      font-weight: 600;
+      display: block;
+      text-align: right;
+      margin-left: 0;
+      margin-top: 2px;
+      min-width: 70px;
     }
     .error {
       color: #ff5252;
@@ -234,7 +243,6 @@
 </head>
 <body>
   <div class="calculator" role="main" aria-label="Arbitrázs kalkulátor">
-    <!-- Kör alakú, középre igazított logó -->
     <div class="logo-wrapper">
       <img src="logo21.png" alt="Logó" class="logo" />
     </div>
@@ -286,48 +294,21 @@
   </div>
 
   <script>
-    // D I N A M I K U S   SPORTFOGADÓ IRODA LISTA
+    // --- EUR árfolyam ---
+    const eurRate = 399;
+
+    // --- Bookmaker lista ---
     const bookmakers = {
-      tippmixpro: {
-        label: "TippMixPro",
-        url: "https://www.tippmixpro.hu/"
-      },
-      vegas: {
-        label: "Vegas",
-        url: "https://vegas.hu/betting"
-      },
-      piwi247: {
-        label: "Piwi247",
-        url: "https://www.piwi247.com/sports"
-      },
-      boabet: {
-        label: "BoaBet",
-        url: "https://play.boabet-134.com/en/sportsbook/"
-      },
-      betinia: {
-        label: "Betinia",
-        url: "https://betinia9.com/hu/sport?page=overview"
-      },
-      betinasia: {
-        label: "BetInAsia",
-        url: "https://black.betinasia.com/login?next=/trade"
-      },
-      blaze: {
-        label: "Blaze",
-        url: "https://blaze.com/en/"
-      },
-      ivibet: {
-        label: "Ivibet",
-        url: "https://ivibet.com/"
-      },
-      "blaze.bet.br": {
-        label: "Blaze",
-        url: "https://blaze.com/en/"
-      },
-      betwinner: {
-        label: "Betwinner",
-        url: "https://betwinner.com/hu"
-      }
+      tippmixpro: { label: "TippMixPro", url: "https://www.tippmixpro.hu/" },
+      vegas: { label: "Vegas", url: "https://vegas.hu/betting" },
+      piwi247: { label: "Piwi247", url: "https://www.piwi247.com/sports" },
+      boabet: { label: "BoaBet", url: "https://play.boabet-134.com/en/sportsbook/" },
+      betinia: { label: "Betinia", url: "https://betinia9.com/hu/sport?page=overview" },
+      betinasia: { label: "BetInAsia", url: "https://black.betinasia.com/login?next=/trade" },
+      blaze: { label: "Blaze", url: "https://blaze.com/en/" },
+      ivibet: { label: "Ivibet", url: "https://ivibet.com/" },
+      "blaze.bet.br": { label: "Blaze", url: "https://blaze.com/en/" },
+      betwinner: { label: "Betwinner", url: "https://betwinner.com/hu" }
     };
 
     let stake1Input, stake2Input;
@@ -371,7 +352,6 @@
       const bookDiv = document.getElementById("bookmakerButtons");
       bookDiv.innerHTML = "";
 
-      // Ellenőrizzük az URL-ben megadott sportfogadókat
       const books = [];
       const odds1Book = params.get("odds1Book");
       const odds2Book = params.get("odds2Book");
@@ -384,7 +364,6 @@
         }
       }
 
-      // Gomb generálása minden sportfogadóhoz
       books.forEach(bm => {
         const a = document.createElement("a");
         a.className = "book-link";
@@ -395,7 +374,6 @@
         bookDiv.appendChild(a);
       });
 
-      // Ha legalább egy gomb van, a számolás gombot elrejtjük
       calcButton.style.display = books.length ? "none" : "inline-block";
     }
 
@@ -466,6 +444,7 @@
         stake2Input.value = initialStake2.toFixed(0);
         stakeField.value  = (initialStake1 + initialStake2).toFixed(0);
         isUpdating = false;
+        updateStakeEurDisplays();
       }
 
       updateProfits(odds1, odds2);
@@ -474,11 +453,20 @@
     function renderEditableStakes(initialStake1, initialStake2) {
       resultDiv.innerHTML = '';
 
+      // --- ODDS 1 BLOKK ---
       const row1 = document.createElement('div');
       row1.className = 'row';
+
       const label1 = document.createElement('span');
       label1.className = 'label-text';
       label1.textContent = `${labelOdds1.textContent} tét (Ft):`;
+
+      // Input + EUR közös boxban (oszlop)
+      const stake1Box = document.createElement('div');
+      stake1Box.style.display = 'flex';
+      stake1Box.style.flexDirection = 'column';
+      stake1Box.style.width = '100%';
+
       stake1Input = document.createElement('input');
       stake1Input.type  = 'number';
       stake1Input.min   = '0';
@@ -486,14 +474,30 @@
       stake1Input.value = initialStake1.toFixed(0);
       stake1Input.className = 'value-input';
       stake1Input.addEventListener('input', onStake1Change);
-      row1.appendChild(label1);
-      row1.appendChild(stake1Input);
 
+      const stake1Eur = document.createElement('span');
+      stake1Eur.id = 'stake1Eur';
+      stake1Eur.className = 'eur-value';
+
+      stake1Box.appendChild(stake1Input);
+      stake1Box.appendChild(stake1Eur);
+
+      row1.appendChild(label1);
+      row1.appendChild(stake1Box);
+
+      // --- ODDS 2 BLOKK ---
       const row2 = document.createElement('div');
       row2.className = 'row';
+
       const label2 = document.createElement('span');
       label2.className = 'label-text';
       label2.textContent = `${labelOdds2.textContent} tét (Ft):`;
+
+      const stake2Box = document.createElement('div');
+      stake2Box.style.display = 'flex';
+      stake2Box.style.flexDirection = 'column';
+      stake2Box.style.width = '100%';
+
       stake2Input = document.createElement('input');
       stake2Input.type  = 'number';
       stake2Input.min   = '0';
@@ -501,9 +505,18 @@
       stake2Input.value = initialStake2.toFixed(0);
       stake2Input.className = 'value-input';
       stake2Input.addEventListener('input', onStake2Change);
-      row2.appendChild(label2);
-      row2.appendChild(stake2Input);
 
+      const stake2Eur = document.createElement('span');
+      stake2Eur.id = 'stake2Eur';
+      stake2Eur.className = 'eur-value';
+
+      stake2Box.appendChild(stake2Input);
+      stake2Box.appendChild(stake2Eur);
+
+      row2.appendChild(label2);
+      row2.appendChild(stake2Box);
+
+      // --- Profits és garantált nyereség ---
       const rowProfit1 = document.createElement('div');
       rowProfit1.className = 'row';
       rowProfit1.id = 'profit1Row';
@@ -542,6 +555,7 @@
       rowGuaranteed.appendChild(labelG);
       rowGuaranteed.appendChild(valueG);
 
+      // Tippek
       const params = new URLSearchParams(window.location.search);
       const tip1Text = params.get('tip1');
       const tip2Text = params.get('tip2');
@@ -583,6 +597,7 @@
       const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
       const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
       updateProfits(odds1, odds2);
+      updateStakeEurDisplays();
     }
 
     function onStake1Change() {
@@ -601,6 +616,7 @@
       isUpdating = false;
 
       updateProfits(odds1, odds2);
+      updateStakeEurDisplays();
     }
 
     function onStake2Change() {
@@ -619,6 +635,7 @@
       isUpdating = false;
 
       updateProfits(odds1, odds2);
+      updateStakeEurDisplays();
     }
 
     function updateProfits(odds1, odds2) {
@@ -641,6 +658,16 @@
         isNaN(guaranteed)
           ? '- Ft'
           : `${guaranteed.toFixed(0)} Ft (${guaranteedPercent.toFixed(2)}%)`;
+    }
+
+    function updateStakeEurDisplays() {
+      if (!stake1Input || !stake2Input) return;
+      const s1 = parseFloat(stake1Input.value.replace(',', '.'));
+      const s2 = parseFloat(stake2Input.value.replace(',', '.'));
+      const s1Eur = (s1 / eurRate).toFixed(2);
+      const s2Eur = (s2 / eurRate).toFixed(2);
+      document.getElementById('stake1Eur').textContent = isNaN(s1Eur) ? '' : `= ${s1Eur} EUR`;
+      document.getElementById('stake2Eur').textContent = isNaN(s2Eur) ? '' : `= ${s2Eur} EUR`;
     }
   </script>
 </body>
