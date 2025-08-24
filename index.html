@@ -54,7 +54,6 @@
   input[type="number"]::placeholder { color: #777c85; }
   input[type="number"]:focus { border-color: #00ff88; box-shadow: 0 0 8px #00ff8844, 0 1px 6px #00ffc021 inset; }
 
-  /* Fő CTA és könyvjelző gombok (globális gombstílus) */
   button, .book-link {
     margin-top: 24px; width: 100%; display: inline-block; text-decoration: none; text-align: center;
     font-weight: 700; font-size: 1.2rem; padding: 14px 0; border-radius: 12px; cursor: pointer;
@@ -72,7 +71,7 @@
   .book-link:hover, .book-link:focus { background: linear-gradient(90deg, #00bfa5, #00ffcc); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.9); }
 
   .result { margin-top: 28px; font-weight: 700; font-size: 1.15rem; line-height: 1.5; color: #e0e0e0; text-align: left; }
-  .row { margin-top: 5px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; }
+  .row { margin-top: 5px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
   .label-text { color: #b0b0b0; font-weight: 600; }
   .value-input { text-align: right; }
   .value-text { color: #00ff88; font-weight: 800; text-shadow: 0 0 6px #00ff8844; }
@@ -80,22 +79,33 @@
   .guaranteed-value { color: #a0ffb4; font-weight: 800; text-shadow: 0 0 8px #a0ffb455; }
   .tip-label { color: #ffd166; font-weight: 700; font-size: 1rem; margin-top: 16px; }
   .tip-value { color: #ffd166; font-weight: 600; font-size: 0.95rem; line-height: 1.3; margin-bottom: 8px; text-align: left; }
-  .eur-value { font-size: 0.75em; color: #23ffd6; font-weight: 600; display: block; text-align: right; margin-top: 2px; min-width: 70px; }
+  .eur-value, .ft-value { font-size: 0.78em; color: #23ffd6; font-weight: 600; }
+
+  /* Az alsó „= …” sor konténere + ikon */
+  .alt-wrap{
+    display:flex; justify-content:flex-end; align-items:center; gap:8px;
+    margin-top: 2px; min-height: 1.2em;
+  }
+  .swap-emoji-inline{
+    width: 1em; height: 1em; cursor: pointer; user-select: none;
+  }
+
   .error { color: #ff5252; margin-top: 14px; font-weight: 600; }
 
-  /* Kérésre: Teljes tét mező elrejtése */
+  /* Teljes tét mező elrejtése */
   #stake, label[for="stake"] { display: none; }
 
-  /* --- MÁSOLÓ GOMB FIX --- */
+  /* Input konténer + copy gomb (csere ikon már NEM itt van) */
   .input-with-copy { position: relative; width: 100%; }
-  .value-input.copyable { padding-right: 48px; } /* helyet hagy a gombnak */
+  .value-input.copyable { padding-right: 52px; } /* csak a copy gombnak kell hely */
+
   button.copy-btn {
     position: absolute; right: 8px; top: 8px;
     width: auto; min-width: 36px; height: 32px; padding: 0 8px; margin: 0;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: 8px; border: 1px solid #00ff88;
     background: #173329; color: #bfffdc; font-size: 0.95rem; line-height: 1;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.25); z-index: 2;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25); z-index: 2; cursor: pointer;
     transition: transform .08s ease, box-shadow .2s ease;
   }
   button.copy-btn:hover, button.copy-btn:focus {
@@ -103,28 +113,6 @@
   }
   button.copy-btn:active { transform: scale(0.98); }
   button.copy-btn.copied { border-color: #62ff9d; color: #62ff9d; }
-
-  /* --- Discord in-app figyelmeztető sáv --- */
-  .inapp-warning{
-    position: fixed; left: 12px; right: 12px; top: 12px; z-index: 9999;
-    background: linear-gradient(135deg,#1f262d,#24313a);
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow: 0 8px 24px rgba(0,0,0,.35);
-    border-radius: 14px; padding: 12px 14px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .inapp-warning .txt{ flex: 1; color: #e0e0e0; font-size: .95rem; }
-  .inapp-warning .btns{ display: flex; gap: 8px; }
-  .inapp-warning .btn{
-    user-select: none; cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center;
-    padding: 8px 12px; border-radius: 10px; font-weight: 700; font-size: .9rem;
-    border: 1px solid #00ff88; color:#1e1e1e;
-    background: linear-gradient(90deg,#00ffcc,#00bfa5);
-  }
-  .inapp-warning .btn.secondary{
-    border-color:#444c56; background:#1f262d; color:#b0b0b0;
-  }
 
   @media (max-width: 400px) {
     .calculator { padding: 25px 20px; width: 100%; box-shadow: none; border-radius: 12px; }
@@ -137,9 +125,11 @@
     .logo { width: 50px; height: 50px; }
     .logo-wrapper { margin-bottom: 14px; }
     button.copy-btn { right: 6px; top: 6px; height: 30px; min-width: 34px; }
-    .inapp-warning{ flex-direction: column; align-items: stretch; }
-    .inapp-warning .btns{ justify-content: flex-end; }
   }
+
+  .is-positive { color: #a0ffb4 !important; text-shadow: 0 0 8px #a0ffb455 !important; }
+  .is-zero     { color: #ffd166 !important; text-shadow: 0 0 8px #ffd16655 !important; }
+  .is-negative { color: #ff6b6b !important; text-shadow: 0 0 8px #ff6b6b55 !important; }
   </style>
 </head>
 <body>
@@ -169,28 +159,35 @@
   </div>
 
   <script>
-    // EUR árfolyam (alapértelmezett; opcionálisan ?eur=...-al felülírható)
+    // ==== Alapbeállítások ====
+    const eurRate = 396;
     const paramsAtLoad = new URLSearchParams(window.location.search);
-    const eurParam = parseFloat(paramsAtLoad.get('eur'));
-    const eurRate = Number.isFinite(eurParam) && eurParam > 0 ? eurParam : 399;
 
-    // Bookmaker lista
     const bookmakers = {
       tippmixpro: { label: "TippMixPro", url: "https://www.tippmixpro.hu/" },
       vegas:      { label: "Vegas",      url: "https://vegas.hu/betting" },
       piwi247:    { label: "Piwi247",    url: "https://www.piwi247.com/sports" },
       boabet:     { label: "BoaBet",     url: "https://www.boabet.com/" },
       betinia:    { label: "Betinia",    url: "https://betinia.com/hu/" },
-      betinasia:  { label: "BetInAsia",  url: "https://black.betinasia.com/login?next=/trade" },
+      betinasia:  { label: "BetInAsia",  url: "https://black.betinasia.com/sportsbook/football" },
       blaze:      { label: "Blaze",      url: "https://blaze.com/en/" },
       "20bet":    { label: "20bet",      url: "https://20bet.com/hu" },
       ivibet:     { label: "Ivibet",     url: "https://ivibet.com/" },
       "blaze.bet.br": { label: "Blaze",  url: "https://blaze.com/en/" },
-      betwinner:  { label: "Betwinner",  url: "https://betwinner.com/hu" }
+      betwinner:  { label: "Betwinner",  url: "https://betwinner.com/hu" },
+      funbet:     { label: "Funbet",     url: "https://funbet.com/hu" }
     };
+
+    // Deviza módok a tét mezőkhöz: 'HUF' vagy 'EUR'
+    let stakeMode1 = 'HUF';
+    let stakeMode2 = 'HUF';
 
     let stake1Input, stake2Input;
     let isUpdating = false;
+
+    const DEBOUNCE_MS   = 2000;
+    let stakeRoundTimer1 = null;
+    let stakeRoundTimer2 = null;
 
     const odds1Field = document.getElementById('odds1');
     const odds2Field = document.getElementById('odds2');
@@ -201,11 +198,14 @@
     const resultDiv  = document.getElementById('result');
     const errorDiv   = document.getElementById('error');
 
-    // Láthatóság azonnal, hogy egy esetleges hiba ne rejtse el a kalkulátort
+    let isFocusedS1 = false;
+    let isFocusedS2 = false;
+
     window.addEventListener('DOMContentLoaded', () => {
       document.querySelector('.calculator')?.classList.add('visible');
       try {
         applyURLParamsToFields();
+        autoSetCurrencyModesFromBooks();
         initCalculate();
       } catch (e) {
         console.error(e);
@@ -213,7 +213,15 @@
       }
     });
 
-    // --- URL segédek (felülírás, biztonság, megtartás) ---
+    // ==== Segédek ====
+    function stepForHUF(valueHuf){
+      const n = Number(valueHuf) || 0;
+      return n < 10000 ? 50 : 100;
+    }
+    function stepForMode(mode, currentHufValue){
+      return mode === 'EUR' ? 0.1 : stepForHUF(currentHufValue);
+    }
+
     function sanitizeUrl(u) {
       try {
         const url = new URL(u, window.location.origin);
@@ -224,12 +232,12 @@
     function getCaseInsensitiveParam(nameCI) {
       const params = new URLSearchParams(window.location.search);
       for (const [k, v] of params.entries()) {
-        if (k.toLowerCase() === nameCI.toLowerCase()) return v; // már dekódolt
+        if (k.toLowerCase() === nameCI.toLowerCase()) return v;
       }
       return null;
     }
     function resolveBookmakerUrl(key, defaultUrl) {
-      const override = getCaseInsensitiveParam(`${key}url`); // pl. betiniaUrl
+      const override = getCaseInsensitiveParam(`${key}url`);
       if (override) {
         const sanitized = sanitizeUrl(override);
         if (sanitized) return sanitized;
@@ -259,6 +267,17 @@
       showBookmakerButtons();
     }
 
+    function autoSetCurrencyModesFromBooks(){
+      const params = new URLSearchParams(window.location.search);
+      const eurBooks = new Set(['betinasia', 'blaze', 'blaze.bet.br']);
+
+      const b1 = params.get('odds1Book');
+      const b2 = params.get('odds2Book');
+
+      if (b1 && eurBooks.has(String(b1).toLowerCase())) stakeMode1 = 'EUR';
+      if (b2 && eurBooks.has(String(b2).toLowerCase())) stakeMode2 = 'EUR';
+    }
+
     function showBookmakerButtons() {
       try {
         const params  = new URLSearchParams(window.location.search);
@@ -276,7 +295,7 @@
           const bm  = bookmakers[key];
           if (!bm || seen.has(key)) return;
 
-          const url = resolveBookmakerUrl(key, bm.url); // ?<kulcs>Url=... felülírás
+          const url = resolveBookmakerUrl(key, bm.url);
           books.push({ label: bm.label, url });
           seen.add(key);
         });
@@ -286,12 +305,11 @@
           a.className = "book-link";
           a.href = bm.url;
           a.target = "_blank";
-          a.rel = "noreferrer noopener"; // NINCS referrer
+          a.rel = "noreferrer noopener";
           a.textContent = bm.label;
           bookDiv.appendChild(a);
         });
 
-        // RÉGI viselkedés: ha van bármelyik iroda-gomb, a Számolás gomb tűnjön el
         calcButton.style.display = books.length ? "none" : "inline-block";
       } catch (e) {
         console.error(e);
@@ -325,7 +343,7 @@
       stake1Input = null;
       stake2Input = null;
       calculateArbitrage();
-      updateURLParams(); // konzisztens URL frissítés
+      updateURLParams();
     });
 
     function initCalculate() {
@@ -334,12 +352,31 @@
       calculateArbitrage();
     }
 
+    // == Deviza ↔ HUF konverzió segédek ==
+    function displayToHUF(displayValue, mode){
+      const n = Number(String(displayValue).replace(',', '.')) || 0;
+      return mode === 'EUR' ? n * eurRate : n;
+    }
+    function hufToDisplay(hufValue, mode){
+      const n = Number(hufValue) || 0;
+      return mode === 'EUR' ? (n / eurRate) : n;
+    }
+    function formatDisplay(n, mode){
+      if (mode === 'EUR') return (Math.round(n * 10) / 10).toFixed(1);
+      return Math.round(n).toString();
+    }
+    function roundToTenthEUR(x) {
+      const n = Number(x);
+      if (!Number.isFinite(n)) return null;
+      return Math.round(n * 10) / 10;
+    }
+
     function calculateArbitrage() {
       const MIN_ODDS = 1.01;
 
       const odds1      = parseFloat(odds1Field.value.replace(',', '.'));
       const odds2      = parseFloat(odds2Field.value.replace(',', '.'));
-      const totalStake = parseFloat(stakeField.value.replace(',', '.'));
+      const totalStake = parseFloat(stakeField.value.replace(',', '.')); // HUF
 
       resultDiv.innerHTML = '';
       errorDiv.textContent = '';
@@ -354,35 +391,32 @@
       }
 
       const arbPercent = 1 / odds1 + 1 / odds2;
-      if (arbPercent >= 1) {
-        errorDiv.textContent = 'Nincs arbitrázs lehetőség (arbitrázs % ≥ 100%).';
-        return;
-      }
 
-      const initialStake1 = (totalStake / odds1) / arbPercent;
-      const initialStake2 = (totalStake / odds2) / arbPercent;
+      const initialStake1HUF = (totalStake / odds1) / arbPercent;
+      const initialStake2HUF = (totalStake / odds2) / arbPercent;
 
       if (!stake1Input && !stake2Input) {
-        renderEditableStakes(initialStake1, initialStake2);
+        renderEditableStakes(initialStake1HUF, initialStake2HUF);
+        setTimeout(() => roundAll(), 0);
       } else if (!isUpdating) {
         isUpdating = true;
-        stake1Input.value = initialStake1.toFixed(0);
-        stake2Input.value = initialStake2.toFixed(0);
-        stakeField.value  = (initialStake1 + initialStake2).toFixed(0);
+        writeDisplayStake(stake1Input, initialStake1HUF, stakeMode1);
+        writeDisplayStake(stake2Input, initialStake2HUF, stakeMode2);
+        stakeField.value  = Math.round(initialStake1HUF + initialStake2HUF).toString();
         isUpdating = false;
-        updateStakeEurDisplays();
+        updateStakeAltDisplays();
+        syncInputSteps();
       }
 
       updateProfits(odds1, odds2);
     }
 
-    // --- Másolás utility ---
+    // ==== Másolás ====
     function copyToClipboard(text) {
       if (!text && text !== 0) return Promise.resolve(false);
       if (navigator.clipboard && navigator.clipboard.writeText) {
         return navigator.clipboard.writeText(String(text)).then(() => true).catch(() => false);
       }
-      // Fallback
       try {
         const ta = document.createElement('textarea');
         ta.value = String(text);
@@ -409,7 +443,93 @@
       }, 1500);
     }
 
-    function renderEditableStakes(initialStake1, initialStake2) {
+    // ==== Dinamikus kerekítés + léptetés (HUF térben) ====
+    function roundedPairFrom(source, s1HUF, s2HUF, o1, o2){
+      if (source === 's2') {
+        let step2 = stepForHUF(s2HUF);
+        s2HUF = Math.round(s2HUF / step2) * step2;
+
+        s1HUF = (s2HUF * o2) / o1;
+        let step1 = stepForHUF(s1HUF);
+        s1HUF = Math.round(s1HUF / step1) * step1;
+      } else {
+        let step1 = stepForHUF(s1HUF);
+        s1HUF = Math.round(s1HUF / step1) * step1;
+
+        s2HUF = (s1HUF * o1) / o2;
+        let step2 = stepForHUF(s2HUF);
+        s2HUF = Math.round(s2HUF / step2) * step2;
+      }
+      return [Math.max(0, Math.round(s1HUF)), Math.max(0, Math.round(s2HUF))];
+    }
+
+    function getDisplayStakesHUF(o1, o2){
+      const rawS1Disp = stake1Input ? Number(String(stake1Input.value).replace(',', '.')) || 0 : 0;
+      const rawS2Disp = stake2Input ? Number(String(stake2Input.value).replace(',', '.')) || 0 : 0;
+
+      const rawS1HUF = displayToHUF(rawS1Disp, stakeMode1);
+      const rawS2HUF = displayToHUF(rawS2Disp, stakeMode2);
+
+      if (isFocusedS1) return roundedPairFrom('s1', rawS1HUF, (rawS1HUF * o1) / o2, o1, o2);
+      if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, rawS2HUF, o1, o2);
+      return roundedPairFrom('s1', rawS1HUF, rawS2HUF, o1, o2);
+    }
+
+    function commitRound(source){
+      if (!stake1Input || !stake2Input) return;
+      const o1 = parseFloat(odds1Field.value.replace(',', '.'));
+      const o2 = parseFloat(odds2Field.value.replace(',', '.'));
+
+      let s1HUF = displayToHUF(stake1Input.value, stakeMode1);
+      let s2HUF = displayToHUF(stake2Input.value, stakeMode2);
+
+      const [rs1HUF, rs2HUF] = roundedPairFrom(source, s1HUF, s2HUF, o1, o2);
+      isUpdating = true;
+      writeDisplayStake(stake1Input, rs1HUF, stakeMode1);
+      writeDisplayStake(stake2Input, rs2HUF, stakeMode2);
+      stakeField.value  = String(rs1HUF + rs2HUF);
+      isUpdating = false;
+      updateProfits(o1, o2);
+      updateStakeAltDisplays();
+      updateURLParams();
+      syncInputSteps();
+    }
+
+    function roundAll(){
+      if (!stake1Input || !stake2Input) return;
+      if (isFocusedS1) { isFocusedS1 = false; commitRound('s1'); return; }
+      if (isFocusedS2) { isFocusedS2 = false; commitRound('s2'); return; }
+      commitRound('s1');
+    }
+
+    function triggerCommitOnUserMotion(){
+      if (isFocusedS1) { isFocusedS1 = false; commitRound('s1'); return; }
+      if (isFocusedS2) { isFocusedS2 = false; commitRound('s2'); return; }
+    }
+
+    function scheduleStakeRound(source) {
+      if (source === 's1') {
+        if (stakeRoundTimer1) clearTimeout(stakeRoundTimer1);
+        stakeRoundTimer1 = setTimeout(() => commitRound('s1'), DEBOUNCE_MS);
+      } else {
+        if (stakeRoundTimer2) clearTimeout(stakeRoundTimer2);
+        stakeRoundTimer2 = setTimeout(() => commitRound('s2'), DEBOUNCE_MS);
+      }
+    }
+
+    function syncInputSteps(){
+      if (stake1Input) {
+        const currentHUF1 = displayToHUF(stake1Input.value, stakeMode1);
+        stake1Input.step = String(stepForMode(stakeMode1, currentHUF1));
+      }
+      if (stake2Input) {
+        const currentHUF2 = displayToHUF(stake2Input.value, stakeMode2);
+        stake2Input.step = String(stepForMode(stakeMode2, currentHUF2));
+      }
+    }
+
+    // ==== UI felépítés: ikon az „= …” sor mellett ====
+    function renderEditableStakes(initialStake1HUF, initialStake2HUF) {
       resultDiv.innerHTML = '';
 
       // ODDS 1 blokk
@@ -418,7 +538,8 @@
 
       const label1 = document.createElement('span');
       label1.className = 'label-text';
-      label1.textContent = `${labelOdds1.textContent} tét (Ft):`;
+      label1.id = 'stake1Label';
+      label1.textContent = `${labelOdds1.textContent} tét (${stakeMode1 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
       const stake1Box = document.createElement('div');
       stake1Box.style.display = 'flex';
@@ -428,37 +549,74 @@
       const inputWithCopy1 = document.createElement('div');
       inputWithCopy1.className = 'input-with-copy';
 
-      stake1Input = document.createElement('input');
-      stake1Input.type  = 'number';
-      stake1Input.min   = '0';
-      stake1Input.step  = '1';
-      stake1Input.value = initialStake1.toFixed(0);
-      stake1Input.className = 'value-input copyable';
-      stake1Input.addEventListener('input', onStake1Change);
-      stake1Input.addEventListener('dblclick', async () => {
-        const ok = await copyToClipboard(stake1Input.value);
-        if (ok) showCopiedState(copyBtn1);
-      });
-
       const copyBtn1 = document.createElement('button');
       copyBtn1.type = 'button';
       copyBtn1.className = 'copy-btn';
       copyBtn1.setAttribute('aria-label', 'Tét másolása');
       copyBtn1.textContent = '📋';
-      copyBtn1.addEventListener('click', async () => {
+
+      stake1Input = document.createElement('input');
+      stake1Input.type  = 'number';
+      stake1Input.min   = '0';
+      stake1Input.step  = '1';
+      stake1Input.className = 'value-input copyable';
+      writeDisplayStake(stake1Input, initialStake1HUF, stakeMode1);
+
+      stake1Input.addEventListener('focus', () => { isFocusedS1 = true; });
+      stake1Input.addEventListener('input', () => {
+        onStake1Change();
+        scheduleStakeRound('s1');
+        syncInputSteps();
+      });
+      stake1Input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          isFocusedS1 = false;
+          commitRound('s1');
+          stake1Input.blur();
+        }
+      });
+      stake1Input.addEventListener('blur', () => {
+        isFocusedS1 = false;
+        commitRound('s1');
+      });
+
+      stake1Input.addEventListener('dblclick', async () => {
+        isFocusedS1 = false; commitRound('s1');
         const ok = await copyToClipboard(stake1Input.value);
         if (ok) showCopiedState(copyBtn1);
+      });
+
+      copyBtn1.addEventListener('click', async () => {
+        isFocusedS1 = false; commitRound('s1');
+        setTimeout(async () => {
+          const ok = await copyToClipboard(stake1Input.value);
+          if (ok) showCopiedState(copyBtn1);
+        }, 0);
       });
 
       inputWithCopy1.appendChild(stake1Input);
       inputWithCopy1.appendChild(copyBtn1);
 
-      const stake1Eur = document.createElement('span');
-      stake1Eur.id = 'stake1Eur';
-      stake1Eur.className = 'eur-value';
+      // alsó sor: „= …” + ikon
+      const stake1AltWrap = document.createElement('div');
+      stake1AltWrap.className = 'alt-wrap';
+
+      const stake1Alt = document.createElement('span');
+      stake1Alt.id = 'stake1Alt';
+      stake1Alt.className = stakeMode1 === 'EUR' ? 'ft-value' : 'eur-value';
+
+      const swapInline1 = document.createElement('img');
+      swapInline1.src = 'icon8-refresh.png';
+      swapInline1.alt = 'Deviza váltás';
+      swapInline1.title = 'Deviza váltás (HUF ⇄ EUR)';
+      swapInline1.className = 'swap-emoji-inline';
+      swapInline1.addEventListener('click', () => toggleStakeMode(1));
+
+      stake1AltWrap.appendChild(stake1Alt);
+      stake1AltWrap.appendChild(swapInline1);
 
       stake1Box.appendChild(inputWithCopy1);
-      stake1Box.appendChild(stake1Eur);
+      stake1Box.appendChild(stake1AltWrap);
 
       row1.appendChild(label1);
       row1.appendChild(stake1Box);
@@ -469,7 +627,8 @@
 
       const label2 = document.createElement('span');
       label2.className = 'label-text';
-      label2.textContent = `${labelOdds2.textContent} tét (Ft):`;
+      label2.id = 'stake2Label';
+      label2.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
       const stake2Box = document.createElement('div');
       stake2Box.style.display = 'flex';
@@ -479,37 +638,72 @@
       const inputWithCopy2 = document.createElement('div');
       inputWithCopy2.className = 'input-with-copy';
 
-      stake2Input = document.createElement('input');
-      stake2Input.type  = 'number';
-      stake2Input.min   = '0';
-      stake2Input.step  = '1';
-      stake2Input.value = initialStake2.toFixed(0);
-      stake2Input.className = 'value-input copyable';
-      stake2Input.addEventListener('input', onStake2Change);
-      stake2Input.addEventListener('dblclick', async () => {
-        const ok = await copyToClipboard(stake2Input.value);
-        if (ok) showCopiedState(copyBtn2);
-      });
-
       const copyBtn2 = document.createElement('button');
       copyBtn2.type = 'button';
       copyBtn2.className = 'copy-btn';
       copyBtn2.setAttribute('aria-label', 'Tét másolása');
       copyBtn2.textContent = '📋';
-      copyBtn2.addEventListener('click', async () => {
+
+      stake2Input = document.createElement('input');
+      stake2Input.type  = 'number';
+      stake2Input.min   = '0';
+      stake2Input.step  = '1';
+      stake2Input.className = 'value-input copyable';
+      writeDisplayStake(stake2Input, initialStake2HUF, stakeMode2);
+
+      stake2Input.addEventListener('focus', () => { isFocusedS2 = true; });
+      stake2Input.addEventListener('input', () => {
+        onStake2Change();
+        scheduleStakeRound('s2');
+        syncInputSteps();
+      });
+      stake2Input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          isFocusedS2 = false;
+          commitRound('s2');
+          stake2Input.blur();
+        }
+      });
+      stake2Input.addEventListener('blur', () => {
+        isFocusedS2 = false;
+        commitRound('s2');
+      });
+
+      stake2Input.addEventListener('dblclick', async () => {
+        isFocusedS2 = false; commitRound('s2');
         const ok = await copyToClipboard(stake2Input.value);
         if (ok) showCopiedState(copyBtn2);
+      });
+      copyBtn2.addEventListener('click', async () => {
+        isFocusedS2 = false; commitRound('s2');
+        setTimeout(async () => {
+          const ok = await copyToClipboard(stake2Input.value);
+          if (ok) showCopiedState(copyBtn2);
+        }, 0);
       });
 
       inputWithCopy2.appendChild(stake2Input);
       inputWithCopy2.appendChild(copyBtn2);
 
-      const stake2Eur = document.createElement('span');
-      stake2Eur.id = 'stake2Eur';
-      stake2Eur.className = 'eur-value';
+      const stake2AltWrap = document.createElement('div');
+      stake2AltWrap.className = 'alt-wrap';
+
+      const stake2Alt = document.createElement('span');
+      stake2Alt.id = 'stake2Alt';
+      stake2Alt.className = stakeMode2 === 'EUR' ? 'ft-value' : 'eur-value';
+
+      const swapInline2 = document.createElement('img');
+      swapInline2.src = 'icon8-refresh.png';
+      swapInline2.alt = 'Deviza váltás';
+      swapInline2.title = 'Deviza váltás (HUF ⇄ EUR)';
+      swapInline2.className = 'swap-emoji-inline';
+      swapInline2.addEventListener('click', () => toggleStakeMode(2));
+
+      stake2AltWrap.appendChild(stake2Alt);
+      stake2AltWrap.appendChild(swapInline2);
 
       stake2Box.appendChild(inputWithCopy2);
-      stake2Box.appendChild(stake2Eur);
+      stake2Box.appendChild(stake2AltWrap);
 
       row2.appendChild(label2);
       row2.appendChild(stake2Box);
@@ -546,14 +740,14 @@
       rowGuaranteed.style.marginTop = '12px';
       const labelG = document.createElement('span');
       labelG.className = 'guaranteed-label';
-      labelG.textContent = 'Garantált nyereség:';
+      labelG.textContent = 'Garantált eredmény:';
       const valueG = document.createElement('span');
       valueG.id = 'guaranteedValue';
       valueG.className = 'guaranteed-value';
       rowGuaranteed.appendChild(labelG);
       rowGuaranteed.appendChild(valueG);
 
-      // Tippek (opcionális: tip1, tip2 paramokból)
+      // Tippek (opcionális)
       const params = new URLSearchParams(window.location.search);
       const tip1Text = params.get('tip1');
       const tip2Text = params.get('tip2');
@@ -563,7 +757,7 @@
         tipRow1.className = 'row';
         const tipLabel1 = document.createElement('span');
         tipLabel1.className = 'tip-label';
-        tipLabel1.textContent = `${labelOdds1.textContent}–tipp:`;
+        tipLabel1.textContent = `${labelOdds1.textContent} – tipp:`;
         const tipValue1 = document.createElement('span');
         tipValue1.className = 'tip-value';
         tipValue1.textContent = tip1Text;
@@ -577,7 +771,7 @@
         tipRow2.className = 'row';
         const tipLabel2 = document.createElement('span');
         tipLabel2.className = 'tip-label';
-        tipLabel2.textContent = `${labelOdds2.textContent}–tipp:`; // javítva: textContent
+        tipLabel2.textContent = `${labelOdds2.textContent} – tipp:`;
         const tipValue2 = document.createElement('span');
         tipValue2.className = 'tip-value';
         tipValue2.textContent = tip2Text;
@@ -595,26 +789,34 @@
       const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
       const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
       updateProfits(odds1, odds2);
-      updateStakeEurDisplays();
+      updateStakeAltDisplays();
+      syncInputSteps();
     }
 
+    function writeDisplayStake(inputEl, hufValue, mode){
+      const disp = hufToDisplay(hufValue, mode);
+      inputEl.value = formatDisplay(disp, mode);
+    }
+
+    // ==== Élő frissítések ====
     function onStake1Change() {
       if (isUpdating) return;
       const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
       const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
 
-      let s1 = parseFloat(stake1Input.value.replace(',', '.'));
-      if (isNaN(s1) || s1 < 0) s1 = 0;
+      let s1HUF = displayToHUF(stake1Input.value, stakeMode1);
+      if (!Number.isFinite(s1HUF) || s1HUF < 0) s1HUF = 0;
 
-      const s2 = (s1 * odds1) / odds2;
+      const s2PreviewHUF = (s1HUF * odds1) / odds2;
+      const [ , rs2HUF] = roundedPairFrom('s1', s1HUF, s2PreviewHUF, odds1, odds2);
 
       isUpdating = true;
-      stake2Input.value = s2.toFixed(0);
-      stakeField.value = `${(s1 + s2).toFixed(0)}`;
+      writeDisplayStake(stake2Input, rs2HUF, stakeMode2);
+      stakeField.value  = String(Math.round(s1HUF + rs2HUF));
       isUpdating = false;
 
       updateProfits(odds1, odds2);
-      updateStakeEurDisplays();
+      updateStakeAltDisplays();
       updateURLParams();
     }
 
@@ -623,56 +825,130 @@
       const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
       const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
 
-      let s2 = parseFloat(stake2Input.value.replace(',', '.'));
-      if (isNaN(s2) || s2 < 0) s2 = 0;
+      let s2HUF = displayToHUF(stake2Input.value, stakeMode2);
+      if (!Number.isFinite(s2HUF) || s2HUF < 0) s2HUF = 0;
 
-      const s1 = (s2 * odds2) / odds1;
+      const s1PreviewHUF = (s2HUF * odds2) / odds1;
+      const [rs1HUF, ] = roundedPairFrom('s2', s1PreviewHUF, s2HUF, odds1, odds2);
 
       isUpdating = true;
-      stake1Input.value = s1.toFixed(0);
-      stakeField.value = `${(s1 + s2).toFixed(0)}`;
+      writeDisplayStake(stake1Input, rs1HUF, stakeMode1);
+      stakeField.value  = String(Math.round(rs1HUF + s2HUF));
       isUpdating = false;
 
       updateProfits(odds1, odds2);
-      updateStakeEurDisplays();
+      updateStakeAltDisplays();
       updateURLParams();
     }
 
+    // ==== Profit és alternatív kijelzés ====
     function updateProfits(odds1, odds2) {
       if (!stake1Input || !stake2Input) return;
-      const s1 = parseFloat(stake1Input.value.replace(',', '.'));
-      const s2 = parseFloat(stake2Input.value.replace(',', '.'));
-      const totalInvested = s1 + s2;
 
-      const profit1 = s1 * odds1 - totalInvested;
-      const profit2 = s2 * odds2 - totalInvested;
+      const [s1HUF, s2HUF] = getDisplayStakesHUF(odds1, odds2);
+      const totalInvested = s1HUF + s2HUF;
+
+      const profit1 = s1HUF * odds1 - totalInvested;
+      const profit2 = s2HUF * odds2 - totalInvested;
       const guaranteed = Math.min(profit1, profit2);
+
+      const p1pct = totalInvested > 0 ? (profit1 / totalInvested) * 100 : 0;
+      const p2pct = totalInvested > 0 ? (profit2 / totalInvested) * 100 : 0;
       const guaranteedPercent = totalInvested > 0 ? (guaranteed / totalInvested) * 100 : 0;
 
       const nfFt = new Intl.NumberFormat('hu-HU');
 
-      document.getElementById('profit1Value').textContent =
-        Number.isFinite(profit1) ? `${nfFt.format(Math.round(profit1))} Ft` : '- Ft';
-      document.getElementById('profit2Value').textContent =
-        Number.isFinite(profit2) ? `${nfFt.format(Math.round(profit2))} Ft` : '- Ft';
-      document.getElementById('guaranteedValue').textContent =
-        Number.isFinite(guaranteed)
-          ? `${nfFt.format(Math.round(guaranteed))} Ft (${guaranteedPercent.toFixed(2)}%)`
-          : '- Ft';
+      const p1El = document.getElementById('profit1Value');
+      const p2El = document.getElementById('profit2Value');
+      const gv   = document.getElementById('guaranteedValue');
+
+      p1El.textContent = Number.isFinite(profit1) ? `${nfFt.format(Math.round(profit1))} Ft` : '- Ft';
+      p2El.textContent = Number.isFinite(profit2) ? `${nfFt.format(Math.round(profit2))} Ft` : '- Ft';
+      gv.textContent   = Number.isFinite(guaranteed)
+        ? `${nfFt.format(Math.round(guaranteed))} Ft (${guaranteedPercent.toFixed(2)}%)`
+        : '- Ft';
+
+      const LOW_BAND = 1;
+
+      [p1El, p2El, gv].forEach(el => {
+        el.classList.remove('is-positive','is-zero','is-negative');
+      });
+
+      if (Number.isFinite(profit1)) {
+        if (Math.abs(p1pct) <= LOW_BAND) p1El.classList.add('is-zero');
+        else if (profit1 > 0)            p1El.classList.add('is-positive');
+        else                             p1El.classList.add('is-negative');
+      }
+
+      if (Number.isFinite(profit2)) {
+        if (Math.abs(p2pct) <= LOW_BAND) p2El.classList.add('is-zero');
+        else if (profit2 > 0)            p2El.classList.add('is-positive');
+        else                             p2El.classList.add('is-negative');
+      }
+
+      if (Number.isFinite(guaranteed)) {
+        if (Math.abs(guaranteedPercent) <= LOW_BAND) gv.classList.add('is-zero');
+        else if (guaranteed > 0)                    gv.classList.add('is-positive');
+        else if (guaranteed < 0)                    gv.classList.add('is-negative');
+        else                                        gv.classList.add('is-zero');
+      }
+
+      stakeField.value = String(Math.round(totalInvested));
     }
 
-    function updateStakeEurDisplays() {
+    function updateStakeAltDisplays() {
       if (!stake1Input || !stake2Input) return;
-      const s1 = Number(String(stake1Input.value).replace(',', '.'));
-      const s2 = Number(String(stake2Input.value).replace(',', '.'));
-      const s1EurEl = document.getElementById('stake1Eur');
-      const s2EurEl = document.getElementById('stake2Eur');
+      const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
+      const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
+      const [s1HUF, s2HUF] = getDisplayStakesHUF(odds1, odds2);
 
-      if (Number.isFinite(s1)) s1EurEl.textContent = `= ${(s1 / eurRate).toFixed(2)} EUR`;
-      else s1EurEl.textContent = '';
+      const s1AltEl = document.getElementById('stake1Alt');
+      const s2AltEl = document.getElementById('stake2Alt');
 
-      if (Number.isFinite(s2)) s2EurEl.textContent = `= ${(s2 / eurRate).toFixed(2)} EUR`;
-      else s2EurEl.textContent = '';
+      if (stakeMode1 === 'EUR') {
+        const ft1 = Number.isFinite(s1HUF) ? s1HUF : null;
+        s1AltEl.className = 'ft-value';
+        s1AltEl.textContent = ft1 != null ? `= ${ft1.toLocaleString('hu-HU')} Ft` : '';
+      } else {
+        const eur1 = Number.isFinite(s1HUF) ? roundToTenthEUR(s1HUF / eurRate) : null;
+        s1AltEl.className = 'eur-value';
+        s1AltEl.textContent = eur1 != null ? `= ${eur1.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : '';
+      }
+
+      if (stakeMode2 === 'EUR') {
+        const ft2 = Number.isFinite(s2HUF) ? s2HUF : null;
+        s2AltEl.className = 'ft-value';
+        s2AltEl.textContent = ft2 != null ? `= ${ft2.toLocaleString('hu-HU')} Ft` : '';
+      } else {
+        const eur2 = Number.isFinite(s2HUF) ? roundToTenthEUR(s2HUF / eurRate) : null;
+        s2AltEl.className = 'eur-value';
+        s2AltEl.textContent = eur2 != null ? `= ${eur2.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : '';
+      }
+
+      const s1Label = document.getElementById('stake1Label');
+      const s2Label = document.getElementById('stake2Label');
+      if (s1Label) s1Label.textContent = `${labelOdds1.textContent} tét (${stakeMode1 === 'EUR' ? 'EUR' : 'Ft'}):`;
+      if (s2Label) s2Label.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
+    }
+
+    function toggleStakeMode(which){
+      const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
+      const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
+
+      if (which === 1 && stake1Input) {
+        const currentHUF = displayToHUF(stake1Input.value, stakeMode1);
+        stakeMode1 = (stakeMode1 === 'EUR') ? 'HUF' : 'EUR';
+        writeDisplayStake(stake1Input, currentHUF, stakeMode1);
+      }
+      if (which === 2 && stake2Input) {
+        const currentHUF = displayToHUF(stake2Input.value, stakeMode2);
+        stakeMode2 = (stakeMode2 === 'EUR') ? 'HUF' : 'EUR';
+        writeDisplayStake(stake2Input, currentHUF, stakeMode2);
+      }
+
+      syncInputSteps();
+      updateProfits(odds1, odds2);
+      updateStakeAltDisplays();
     }
 
     /* ==== Discord in-app detektálás + banner ==== */
@@ -683,7 +959,6 @@
       const isIOS = /iPhone|iPad|iPod/i.test(ua);
       return { isDiscord, isAndroid, isIOS, isInApp: isDiscord && (isAndroid || isIOS) };
     }
-
     function showInAppBanner(os) {
       const div = document.createElement('div');
       div.className = 'inapp-warning';
@@ -716,6 +991,21 @@
       if (isInApp) {
         showInAppBanner(isIOS ? 'ios' : 'android');
       }
+    });
+
+    // Betöltéskori azonnali kerekítés + mozgásfigyelők a commit-hoz
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => roundAll(), 0);
+
+      window.addEventListener('wheel', () => triggerCommitOnUserMotion(), { passive: true });
+      window.addEventListener('scroll', () => triggerCommitOnUserMotion(), { passive: true });
+      window.addEventListener('touchmove', () => triggerCommitOnUserMotion(), { passive: true });
+
+      document.addEventListener('pointerdown', (e) => {
+        if (stake1Input && stake1Input.contains?.(e.target)) return;
+        if (stake2Input && stake2Input.contains?.(e.target)) return;
+        triggerCommitOnUserMotion();
+      }, { capture: true });
     });
   </script>
 </body>
