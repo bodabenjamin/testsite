@@ -207,12 +207,18 @@
   .calc-toast .title{ font-weight:800; color:#ffd166; font-size:1rem; }
   .calc-toast .txt{ color:#e0e0e0; font-size:.95rem; line-height:1.3; margin-top:4px; }
   .calc-toast .btns{ display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
+
+  /* ⛔ Rejtés érintős/mobil eszközökön – safety net CSS */
+  @media (hover:none) and (pointer:coarse), (max-width: 700px) {
+    .settings-btn { display: none !important; }
+    #settingsModal, #settingsBackdrop { display: none !important; }
+  }
   </style>
 </head>
 <body>
   <div class="calculator" role="main" aria-label="Arbitrázs kalkulátor">
 
-    <!-- === Beállítások gomb (123.png) === -->
+    <!-- === Beállítások gomb (PC/Laptop) – mobilon JS-ből és CSS-ből is rejtve === -->
     <button class="settings-btn" id="settingsBtn" aria-label="Beállítások">
       <img src="123.png" alt="Beállítások">
     </button>
@@ -229,8 +235,8 @@
         <div class="setting-row">
           <div style="max-width: calc(100% - 120px);">
             <div class="lbl">Fogadóirodák automatikus nyitása</div>
-            <div class="desc">Betöltéskor a linkelt irodák megnyitása új fülön.</div>
-          </div>	
+            <div class="desc">Betöltéskor a linkelt irodák megnyitása új fülön (ha szerepelnek az URL-ben).</div>
+          </div>
           <label class="toggle" title="Be/Ki">
             <input type="checkbox" id="autoOpenToggle">
             <span class="track"><span class="knob"></span></span>
@@ -281,7 +287,7 @@
 
     // FIX DISCORD ÚTMUTATÓ LINK + Popup autózár (3.5 mp)
     const GUIDE_URL = "https://discord.com/channels/1352389902033096724/1400422649502502953/1402328347480162324";
-    const POPUP_AUTO_DISMISS_MS = 3500;
+    const POPUP_AUTO_DISMISS_MS = 7500;
 
     const bookmakers = {
       tippmixpro: { label: "TippMixPro", url: "https://www.tippmixpro.hu/" },
@@ -332,6 +338,17 @@
         errorDiv.textContent = 'Hiba történt a betöltéskor.';
       }
     });
+
+    // ==== Eszköz detektálás (mobil vs. desktop) ====
+    function isMobileDevice(){
+      const ua = navigator.userAgent || '';
+      const mobileUA = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(ua);
+      const touchCoarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+      return mobileUA || touchCoarse;
+    }
+    function isDesktopDevice(){
+      return !isMobileDevice();
+    }
 
     // ==== Segédek ====
     function stepForHUF(valueHuf){
@@ -876,7 +893,7 @@
         tipRow1.className = 'row';
         const tipLabel1 = document.createElement('span');
         tipLabel1.className = 'tip-label';
-        tipLabel1.textContent = `${labelOdds1.textContent} – tipp:`;
+        tipLabel1.textContent = `${labelOdds1.textcontent ?? labelOdds1.textContent} – tipp:`;
         const tipValue1 = document.createElement('span');
         tipValue1.className = 'tip-value';
         tipValue1.textContent = tip1Text;
@@ -890,7 +907,7 @@
         tipRow2.className = 'row';
         const tipLabel2 = document.createElement('span');
         tipLabel2.className = 'tip-label';
-        tipLabel2.textContent = `${labelOdds2.textContent} – tipp:`;
+        tipLabel2.textContent = `${labelOdds2.textcontent ?? labelOdds2.textContent} – tipp:`;
         const tipValue2 = document.createElement('span');
         tipValue2.className = 'tip-value';
         tipValue2.textContent = tip2Text;
@@ -1087,11 +1104,23 @@
 
     /* =========================
        Beállítások MODÁL + Auto Open
+       (🔒 csak Desktopon engedélyezve)
        ========================= */
     const LS_KEY_AUTO_OPEN = 'autoOpenLinks';     // "true"/"false"
     const SS_KEY_ALREADY_TRIED = 'autoOpen_tried';// session guard
 
     (function initSettingsUI(){
+      // Ha nem desktop, tüntessük el és ne inicializáljuk
+      if (!isDesktopDevice()){
+        const btn = document.getElementById('settingsBtn');
+        const modal = document.getElementById('settingsModal');
+        const backdrop = document.getElementById('settingsBackdrop');
+        if (btn) btn.style.display = 'none';
+        if (modal) modal.remove();
+        if (backdrop) backdrop.remove();
+        return;
+      }
+
       const btn = document.getElementById('settingsBtn');
       const modal = document.getElementById('settingsModal');
       const backdrop = document.getElementById('settingsBackdrop');
@@ -1127,7 +1156,7 @@
       });
     })();
 
-    // Eszköz/nézet detektálás (egyszerű): mobil, ha 600px alatti a viewport
+    // Eszköz/nézet detektálás egyszerűsített
     function isMobileView(){
       return window.matchMedia('(max-width: 600px)').matches;
     }
@@ -1135,7 +1164,7 @@
     // Popup – mobilon középre modál, PC-n a kalkulátor mellett „toast”
     function showPopupHint(){
       if (isMobileView()){
-        // MOBIL MODÁL (középre, nincs X szükség, automatikus zárás)
+        // MOBIL MODÁL (középre, auto zár)
         const backdrop = document.createElement('div');
         backdrop.className = 'modal-backdrop show';
 
@@ -1158,13 +1187,8 @@
         const removeAll = ()=>{ try{ backdrop.remove(); modal.remove(); }catch{} };
         document.body.appendChild(backdrop);
         document.body.appendChild(modal);
-
-        let t = setTimeout(removeAll, POPUP_AUTO_DISMISS_MS);
-        [backdrop, modal].forEach(el=>{
-          el.addEventListener('pointerenter', ()=>clearTimeout(t));
-          el.addEventListener('pointerleave', ()=>{ t = setTimeout(removeAll, POPUP_AUTO_DISMISS_MS); });
-          el.addEventListener('click', removeAll); // bárhova kattintva is zár
-        });
+        setTimeout(removeAll, POPUP_AUTO_DISMISS_MS);
+        [backdrop, modal].forEach(el=> el.addEventListener('click', removeAll));
       } else {
         // DESKTOP TOAST – a kalkulátor mellett, jobb felső sarok
         const calc = document.querySelector('.calculator');
@@ -1180,14 +1204,11 @@
           </div>
         `;
         calc.appendChild(toast);
-        // animált megjelenítés
         requestAnimationFrame(()=> toast.classList.add('show'));
 
         const removeToast = ()=>{ try{ toast.remove(); }catch{} };
-        let t = setTimeout(removeToast, POPUP_AUTO_DISMISS_MS);
-        toast.addEventListener('pointerenter', ()=>clearTimeout(t));
-        toast.addEventListener('pointerleave', ()=>{ t = setTimeout(removeToast, POPUP_AUTO_DISMISS_MS); });
-        toast.addEventListener('click', removeToast); // bárhova kattintva is zárható
+        setTimeout(removeToast, POPUP_AUTO_DISMISS_MS);
+        toast.addEventListener('click', removeToast);
       }
     }
 
@@ -1202,7 +1223,7 @@
         const k = String(kRaw).toLowerCase();
         const bm = bookmakers[k];
         if (!bm || seen.has(k)) return;
-        const url = resolveBookmakerUrl(k, bm.url); // ha nincs/rossz override → bm.url
+        const url = resolveBookmakerUrl(k, bm.url);
         if (url) { urls.push(url); seen.add(k); }
       });
 
