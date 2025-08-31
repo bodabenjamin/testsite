@@ -32,6 +32,7 @@
     transform: scale(0.94) translateY(30px);
     transition: opacity 0.6s cubic-bezier(.6,1.5,.7,1), transform 0.6s cubic-bezier(.6,1.5,.7,1);
     will-change: opacity, transform;
+    position: relative; /* a settings gomb & desktop toast miatt */
   }
   .calculator.visible { opacity: 1; transform: scale(1) translateY(0); }
 
@@ -77,27 +78,19 @@
   .value-text { color: #00ff88; font-weight: 800; text-shadow: 0 0 6px #00ff8844; }
   .guaranteed-label { color: #a0ffb4; font-weight: 700; }
   .guaranteed-value { color: #a0ffb4; font-weight: 800; text-shadow: 0 0 8px #a0ffb455; }
-  .tip-label { color: #ffd166; font-weight: 700; font-size: 1rem; margin-top: 16px; }
+  .tip-label { color: #ffd166; font-weight: 700; font-size: 1rem; }
   .tip-value { color: #ffd166; font-weight: 600; font-size: 0.95rem; line-height: 1.3; margin-bottom: 8px; text-align: left; }
   .eur-value, .ft-value { font-size: 0.78em; color: #23ffd6; font-weight: 600; }
 
-  /* Az alsó „= …” sor konténere + ikon */
-  .alt-wrap{
-    display:flex; justify-content:flex-end; align-items:center; gap:8px;
-    margin-top: 2px; min-height: 1.2em;
-  }
-  .swap-emoji-inline{
-    width: 1em; height: 1em; cursor: pointer; user-select: none;
-  }
+  .alt-wrap{ display:flex; justify-content:flex-end; align-items:center; gap:8px; margin-top: 2px; min-height: 1.2em; }
+  .swap-emoji-inline{ width: 1em; height: 1em; cursor: pointer; user-select: none; }
 
   .error { color: #ff5252; margin-top: 14px; font-weight: 600; }
 
-  /* Teljes tét mező elrejtése */
   #stake, label[for="stake"] { display: none; }
 
-  /* Input konténer + copy gomb (csere ikon már NEM itt van) */
   .input-with-copy { position: relative; width: 100%; }
-  .value-input.copyable { padding-right: 52px; } /* csak a copy gombnak kell hely */
+  .value-input.copyable { padding-right: 52px; }
 
   button.copy-btn {
     position: absolute; right: 8px; top: 8px;
@@ -108,9 +101,7 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.25); z-index: 2; cursor: pointer;
     transition: transform .08s ease, box-shadow .2s ease;
   }
-  button.copy-btn:hover, button.copy-btn:focus {
-    background: #173329; box-shadow: 0 3px 10px rgba(0,255,136,0.25);
-  }
+  button.copy-btn:hover, button:focus { background: #173329; box-shadow: 0 3px 10px rgba(0,255,136,0.25); }
   button.copy-btn:active { transform: scale(0.98); }
   button.copy-btn.copied { border-color: #62ff9d; color: #62ff9d; }
 
@@ -130,10 +121,135 @@
   .is-positive { color: #a0ffb4 !important; text-shadow: 0 0 8px #a0ffb455 !important; }
   .is-zero     { color: #ffd166 !important; text-shadow: 0 0 8px #ffd16655 !important; }
   .is-negative { color: #ff6b6b !important; text-shadow: 0 0 8px #ff6b6b55 !important; }
+
+  /* === Középre felugró modál – általános (Settings + mobil popup) === */
+  .modal-backdrop{
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 999;
+  }
+  .modal-backdrop.show{ opacity: 1; pointer-events: auto; }
+
+  .modal{
+    position: fixed; inset: 0; display: grid; place-items: center;
+    z-index: 1000; pointer-events: none;
+  }
+  .modal .box{
+    width: min(92vw, 420px);
+    background: rgba(34,40,49,.98);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px; padding:16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    transform: translateY(10px) scale(.98); opacity: 0;
+    transition: transform .2s ease, opacity .2s ease;
+  }
+  .modal.show{ pointer-events: auto; }
+  .modal.show .box{ transform: translateY(0) scale(1); opacity:1; }
+
+  .modal .hdr{ display:flex; align-items:center; justify-content: space-between; gap:12px; margin-bottom:8px; }
+  .modal .title{ font-weight:800; color:#e6ffe6; font-size:1.05rem; }
+  .modal .close-x{ cursor:pointer; opacity:.85; user-select:none; font-size:1.1rem; padding:6px; }
+
+  /* Beállítások gomb (kép) a kártya jobb felső sarkában */
+  .settings-btn{
+    position:absolute; top:12px; right:12px;
+    width:36px; height:36px; border-radius:8px; padding:0;
+    border:1px solid rgba(255,255,255,.08);
+    background: rgba(34,40,49,.8); backdrop-filter: blur(6px);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    z-index: 3;
+  }
+  .settings-btn:hover{ box-shadow: 0 6px 16px rgba(0,0,0,.35); }
+  .settings-btn img{ width:22px; height:22px; display:block; }
+
+  /* Szebb iOS-szerű toggle */
+  .setting-row{ display:flex; align-items:center; gap:12px; padding:10px 0; }
+  .setting-row .lbl{ font-weight:700; color:#e6ffe6; }
+  .setting-row .desc{ color:#aab; font-size:.92rem; line-height:1.25; margin-top:2px; }
+
+  .toggle{ margin-left:auto; position:relative; width:56px; height:30px; -webkit-tap-highlight-color:transparent; }
+  .toggle input{ display:none; }
+  .toggle .track{
+    position:absolute; inset:0; border-radius:999px; overflow:hidden;
+    background:#3a414a; box-shadow: inset 0 1px 6px rgba(0,0,0,.35);
+    transition: background .18s ease;
+  }
+  .toggle .knob{
+    position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%;
+    background:#f0f0f0; box-shadow: 0 2px 8px rgba(0,0,0,.35);
+    transition: transform .18s ease, background .18s ease;
+  }
+  .toggle input:checked + .track{ background: linear-gradient(90deg,#00c853,#00e676); }
+  .toggle input:checked + .track .knob{ transform: translateX(26px); background:#fff; }
+
+  /* Popup (mobil – középre felugró) */
+  .popup-modal .title{ font-weight:800; color:#ffd166; }
+  .popup-modal .txt{ color:#e0e0e0; line-height:1.35; margin-top:6px; }
+  .modal .btns{ display:flex; gap:10px; justify-content:flex-end; margin-top:14px; flex-wrap:wrap; }
+  .inline-link{
+    border:1px solid #00ff88; background:#173329; color:#bfffdc; border-radius:10px;
+    padding:10px 14px; text-decoration:none; font-weight:700;
+  }
+
+  /* Popup (desktop – toast a kalkulátor mellett, jobb felső) */
+  .calc-toast{
+    position: absolute;
+    top: 10px; left: 100%; margin-left: 12px; /* a kártya jobb széle mellé */
+    width: 320px; max-width: 36vw;
+    background: rgba(34,40,49,.98);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:14px; padding:12px 14px;
+    box-shadow: 0 14px 40px rgba(0,0,0,.35);
+    opacity: 0; transform: translateY(-6px); transition: opacity .2s ease, transform .2s ease;
+    z-index: 2;
+  }
+  .calc-toast.show{ opacity:1; transform: translateY(0); }
+  .calc-toast .title{ font-weight:800; color:#ffd166; font-size:1rem; }
+  .calc-toast .txt{ color:#e0e0e0; font-size:.95rem; line-height:1.3; margin-top:4px; }
+  .calc-toast .btns{ display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
   </style>
 </head>
 <body>
   <div class="calculator" role="main" aria-label="Arbitrázs kalkulátor">
+
+    <!-- === Beállítások gomb (123.png) === -->
+    <button class="settings-btn" id="settingsBtn" aria-label="Beállítások">
+      <img src="123.png" alt="Beállítások">
+    </button>
+
+    <!-- === Beállítások MODÁL + háttér === -->
+    <div class="modal-backdrop" id="settingsBackdrop" hidden></div>
+    <div class="modal" id="settingsModal" hidden>
+      <div class="box">
+        <div class="hdr">
+          <div class="title">Beállítások</div>
+          <span class="close-x" id="settingsClose">✕</span>
+        </div>
+
+        <div class="setting-row">
+          <div style="max-width: calc(100% - 120px);">
+            <div class="lbl">Fogadóirodák automatikus nyitása</div>
+            <div class="desc">Betöltéskor a linkelt irodák megnyitása új fülön.</div>
+          </div>	
+          <label class="toggle" title="Be/Ki">
+            <input type="checkbox" id="autoOpenToggle">
+            <span class="track"><span class="knob"></span></span>
+          </label>
+        </div>
+
+        <hr style="border:none; border-top:1px solid rgba(255,255,255,.08); margin:12px 0;">
+
+        <div class="setting-row">
+          <div style="max-width: calc(100% - 120px);">
+            <div class="lbl">Segítség</div>
+            <div class="desc">Ha az automatikus nyitás nem működik, olvasd el az útmutatót a Discordon.</div>
+          </div>
+          <a id="guideLink" class="inline-link" href="#" target="_blank" rel="noopener" title="Útmutató">Útmutató</a>
+        </div>
+      </div>
+    </div>
+    <!-- === /Beállítások === -->
+
     <div class="logo-wrapper">
       <img src="logo21.png" alt="Logó" class="logo" />
     </div>
@@ -162,6 +278,10 @@
     // ==== Alapbeállítások ====
     const eurRate = 396;
     const paramsAtLoad = new URLSearchParams(window.location.search);
+
+    // FIX DISCORD ÚTMUTATÓ LINK + Popup autózár (3.5 mp)
+    const GUIDE_URL = "https://discord.com/channels/1352389902033096724/1400422649502502953/1402328347480162324";
+    const POPUP_AUTO_DISMISS_MS = 3500;
 
     const bookmakers = {
       tippmixpro: { label: "TippMixPro", url: "https://www.tippmixpro.hu/" },
@@ -471,7 +591,7 @@
       const rawS2HUF = displayToHUF(rawS2Disp, stakeMode2);
 
       if (isFocusedS1) return roundedPairFrom('s1', rawS1HUF, (rawS1HUF * o1) / o2, o1, o2);
-      if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, rawS2HUF, o1, o2);
+      if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, o1, o2);
       return roundedPairFrom('s1', rawS1HUF, rawS2HUF, o1, o2);
     }
 
@@ -597,7 +717,6 @@
       inputWithCopy1.appendChild(stake1Input);
       inputWithCopy1.appendChild(copyBtn1);
 
-      // alsó sor: „= …” + ikon
       const stake1AltWrap = document.createElement('div');
       stake1AltWrap.className = 'alt-wrap';
 
@@ -951,48 +1070,6 @@
       updateStakeAltDisplays();
     }
 
-    /* ==== Discord in-app detektálás + banner ==== */
-    function detectDiscordInApp() {
-      const ua = navigator.userAgent || "";
-      const isDiscord = /Discord/i.test(ua) && !/Discordbot/i.test(ua);
-      const isAndroid = /Android/i.test(ua);
-      const isIOS = /iPhone|iPad|iPod/i.test(ua);
-      return { isDiscord, isAndroid, isIOS, isInApp: isDiscord && (isAndroid || isIOS) };
-    }
-    function showInAppBanner(os) {
-      const div = document.createElement('div');
-      div.className = 'inapp-warning';
-      const msg = os === 'ios'
-        ? 'Discord alkalmazáson belül nyitottad meg. Koppints a megosztás ikonra (⬆️) → „Megnyitás a Safari-ban”.'
-        : 'Discord alkalmazáson belül nyitottad meg. Koppints a jobb felső ⋮ menüre → „Megnyitás a böngészőben” (Chrome).';
-
-      div.innerHTML = `
-        <div class="txt">${msg}</div>
-        <div class="btns">
-          <div class="btn copy">Link másolása</div>
-          <div class="btn secondary close">Bezár</div>
-        </div>`;
-
-      document.body.appendChild(div);
-
-      const copyBtn = div.querySelector('.btn.copy');
-      const closeBtn = div.querySelector('.btn.close');
-
-      copyBtn.addEventListener('click', async () => {
-        const ok = await copyToClipboard(location.href);
-        copyBtn.textContent = ok ? '✓ Kimásolva' : 'Nem sikerült';
-        if (ok) setTimeout(() => { try { div.remove(); } catch {} }, 1200);
-      });
-      closeBtn.addEventListener('click', () => div.remove());
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const { isInApp, isAndroid, isIOS } = detectDiscordInApp();
-      if (isInApp) {
-        showInAppBanner(isIOS ? 'ios' : 'android');
-      }
-    });
-
     // Betöltéskori azonnali kerekítés + mozgásfigyelők a commit-hoz
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => roundAll(), 0);
@@ -1006,6 +1083,159 @@
         if (stake2Input && stake2Input.contains?.(e.target)) return;
         triggerCommitOnUserMotion();
       }, { capture: true });
+    });
+
+    /* =========================
+       Beállítások MODÁL + Auto Open
+       ========================= */
+    const LS_KEY_AUTO_OPEN = 'autoOpenLinks';     // "true"/"false"
+    const SS_KEY_ALREADY_TRIED = 'autoOpen_tried';// session guard
+
+    (function initSettingsUI(){
+      const btn = document.getElementById('settingsBtn');
+      const modal = document.getElementById('settingsModal');
+      const backdrop = document.getElementById('settingsBackdrop');
+      const closeX = document.getElementById('settingsClose');
+      const toggle = document.getElementById('autoOpenToggle');
+      const guideLinkEl = document.getElementById('guideLink');
+
+      const openSettings = ()=>{
+        backdrop.hidden = false; modal.hidden = false;
+        requestAnimationFrame(()=>{
+          backdrop.classList.add('show');
+          modal.classList.add('show');
+        });
+      };
+      const closeSettings = ()=>{
+        backdrop.classList.remove('show');
+        modal.classList.remove('show');
+        setTimeout(()=>{ backdrop.hidden = true; modal.hidden = true; }, 180);
+      };
+
+      if (guideLinkEl) guideLinkEl.href = GUIDE_URL;
+
+      const saved = (localStorage.getItem(LS_KEY_AUTO_OPEN) || 'false') === 'true';
+      toggle.checked = saved;
+
+      btn.addEventListener('click', openSettings);
+      closeX.addEventListener('click', closeSettings);
+      backdrop.addEventListener('click', closeSettings);
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeSettings(); });
+
+      toggle.addEventListener('change', ()=>{
+        localStorage.setItem(LS_KEY_AUTO_OPEN, toggle.checked ? 'true' : 'false');
+      });
+    })();
+
+    // Eszköz/nézet detektálás (egyszerű): mobil, ha 600px alatti a viewport
+    function isMobileView(){
+      return window.matchMedia('(max-width: 600px)').matches;
+    }
+
+    // Popup – mobilon középre modál, PC-n a kalkulátor mellett „toast”
+    function showPopupHint(){
+      if (isMobileView()){
+        // MOBIL MODÁL (középre, nincs X szükség, automatikus zárás)
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop show';
+
+        const modal = document.createElement('div');
+        modal.className = 'modal popup-modal show';
+        modal.innerHTML = `
+          <div class="box">
+            <div class="hdr">
+              <div class="title">Automatikus nyitás blokkolva</div>
+            </div>
+            <div class="txt">
+              Ha nem működik az automatikus megnyitás: nézd meg az útmutatót a Discord <b>#fogadási-beállítások</b> csatornában.
+            </div>
+            <div class="btns">
+              <a class="inline-link" href="${GUIDE_URL}" target="_blank" rel="noopener">Útmutató</a>
+            </div>
+          </div>
+        `;
+
+        const removeAll = ()=>{ try{ backdrop.remove(); modal.remove(); }catch{} };
+        document.body.appendChild(backdrop);
+        document.body.appendChild(modal);
+
+        let t = setTimeout(removeAll, POPUP_AUTO_DISMISS_MS);
+        [backdrop, modal].forEach(el=>{
+          el.addEventListener('pointerenter', ()=>clearTimeout(t));
+          el.addEventListener('pointerleave', ()=>{ t = setTimeout(removeAll, POPUP_AUTO_DISMISS_MS); });
+          el.addEventListener('click', removeAll); // bárhova kattintva is zár
+        });
+      } else {
+        // DESKTOP TOAST – a kalkulátor mellett, jobb felső sarok
+        const calc = document.querySelector('.calculator');
+        if (!calc) return;
+
+        const toast = document.createElement('div');
+        toast.className = 'calc-toast';
+        toast.innerHTML = `
+          <div class="title">Automatikus nyitás blokkolva</div>
+          <div class="txt">Ha nem működik az automatikus megnyitás: nézd meg az útmutatót a Discord <b>#fogadási-beállítások</b> csatornában.</div>
+          <div class="btns">
+            <a class="inline-link" href="${GUIDE_URL}" target="_blank" rel="noopener">Útmutató</a>
+          </div>
+        `;
+        calc.appendChild(toast);
+        // animált megjelenítés
+        requestAnimationFrame(()=> toast.classList.add('show'));
+
+        const removeToast = ()=>{ try{ toast.remove(); }catch{} };
+        let t = setTimeout(removeToast, POPUP_AUTO_DISMISS_MS);
+        toast.addEventListener('pointerenter', ()=>clearTimeout(t));
+        toast.addEventListener('pointerleave', ()=>{ t = setTimeout(removeToast, POPUP_AUTO_DISMISS_MS); });
+        toast.addEventListener('click', removeToast); // bárhova kattintva is zárható
+      }
+    }
+
+    // Összegyűjti a linkeket az URL alapján (üres/hibás override → alapértelmezett)
+    function collectBookmakerUrls(){
+      const params = new URLSearchParams(window.location.search);
+      const keys = [params.get('odds1Book'), params.get('odds2Book')].filter(Boolean);
+      const seen = new Set();
+      const urls = [];
+
+      keys.forEach(kRaw=>{
+        const k = String(kRaw).toLowerCase();
+        const bm = bookmakers[k];
+        if (!bm || seen.has(k)) return;
+        const url = resolveBookmakerUrl(k, bm.url); // ha nincs/rossz override → bm.url
+        if (url) { urls.push(url); seen.add(k); }
+      });
+
+      return urls;
+    }
+
+    // Próbál automatikusan megnyitni (csak 1x/session)
+    function maybeAutoOpenLinks(){
+      const enabled = (localStorage.getItem(LS_KEY_AUTO_OPEN) || 'false') === 'true';
+      if (!enabled) return;
+      if (sessionStorage.getItem(SS_KEY_ALREADY_TRIED) === '1') return;
+
+      const urls = collectBookmakerUrls();
+      if (!urls.length) return;
+
+      sessionStorage.setItem(SS_KEY_ALREADY_TRIED, '1');
+
+      let openedCount = 0;
+      urls.forEach(u=>{
+        try{
+          const w = window.open(u, '_blank', 'noopener');
+          if (w) openedCount++;
+        }catch{}
+      });
+
+      if (openedCount === 0){
+        showPopupHint(); // mobil: modál, desktop: toast
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', ()=>{
+      // kis késleltetés – kevésbé tűnjön "tömeges popupnak"
+      setTimeout(maybeAutoOpenLinks, 300);
     });
   </script>
 </body>
