@@ -262,6 +262,12 @@
 
     <h1>Arbitrázs Kalkulátor</h1>
 
+    <input type="text" id="odds1Book" hidden>
+    <input type="text" id="odds2Book" hidden>
+    <input type="text" id="Meccs" hidden>
+    <input type="text" id="F1" hidden>
+    <input type="text" id="F2" hidden>
+
     <label for="odds1" id="labelOdds1">Odds 1</label>
     <input type="number" id="odds1" step="0.01" min="1.01" placeholder="pl. 1,74" value="1.74" />
 
@@ -281,8 +287,17 @@
   </div>
 
   <script>
+
+  // === Hidden mezők olvasása (helper) ===
+    const _hidden = id => document.getElementById(id);
+    const _getHiddenVal = id => {
+      const el = _hidden(id);
+      return (el && el.value && String(el.value).trim() !== '') ? el.value : null;
+    };
+    const _getBookVal = key => _getHiddenVal(key) ?? (new URLSearchParams(window.location.search)).get(key);
+
     // ==== Alapbeállítások ====
-    const eurRate = 396;
+    const eurRate = 393;
     const paramsAtLoad = new URLSearchParams(window.location.search);
 
     // FIX DISCORD ÚTMUTATÓ LINK + Popup autózár (3.5 mp)
@@ -405,14 +420,11 @@
     }
 
     function autoSetCurrencyModesFromBooks(){
-      const params = new URLSearchParams(window.location.search);
-      const eurBooks = new Set(['betinasia', 'blaze', 'blaze.bet.br']);
-
-      const b1 = params.get('odds1Book');
-      const b2 = params.get('odds2Book');
-
-      if (b1 && eurBooks.has(String(b1).toLowerCase())) stakeMode1 = 'EUR';
-      if (b2 && eurBooks.has(String(b2).toLowerCase())) stakeMode2 = 'EUR';
+       const eurBooks = new Set(['betinasia','blaze','blaze.bet.br']);
+       const b1 = _getBookVal('odds1Book');
+       const b2 = _getBookVal('odds2Book');
+       stakeMode1 = (b1 && eurBooks.has(String(b1).toLowerCase())) ? 'EUR' : 'HUF';
+       stakeMode2 = (b2 && eurBooks.has(String(b2).toLowerCase())) ? 'EUR' : 'HUF';
     }
 
     function showBookmakerButtons() {
@@ -424,8 +436,8 @@
         const books = [];
         const seen  = new Set();
 
-        const odds1Book = params.get("odds1Book");
-        const odds2Book = params.get("odds2Book");
+        const odds1Book = _getBookVal("odds1Book");
+        const odds2Book = _getBookVal("odds2Book");
 
         [odds1Book, odds2Book].filter(Boolean).forEach(keyRaw => {
           const key = String(keyRaw).toLowerCase();
@@ -1258,6 +1270,23 @@
       // kis késleltetés – kevésbé tűnjön "tömeges popupnak"
       setTimeout(maybeAutoOpenLinks, 300);
     });
+
+// Hidden oddsBook mezők figyelése (azonnali frissítés gombokra/deviza módra)
+window.addEventListener('DOMContentLoaded', () => {
+  ['odds1Book','odds2Book'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      autoSetCurrencyModesFromBooks();
+      showBookmakerButtons();
+      // stake UI újracímkézés (HUF/EUR) és profit sorok frissítése
+      updateStakeAltDisplays();
+      const o1 = parseFloat(odds1Field.value.replace(',', '.'));
+      const o2 = parseFloat(odds2Field.value.replace(',', '.'));
+      updateProfits(o1, o2);
+    });
+  });
+});
   </script>
 </body>
 </html>
