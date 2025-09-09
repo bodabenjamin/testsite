@@ -231,6 +231,32 @@
   line-height: 1.15;
   word-break: break-word;
 }
+
+/* Mérkőzés badge a cím alatt */
+.match-wrap{
+  display:flex; justify-content:center; align-items:center;
+  margin: -6px 0 12px 0;
+}
+.match-pill{
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  font-size: .92rem;
+  font-weight: 800;
+  background: rgba(0,255,204,.08);
+  border: 1px solid rgba(0,255,204,.22);
+  color: #d6fff6;
+  box-shadow: 0 2px 10px rgba(0,255,204,.08);
+  max-width: 100%;
+  line-height: 1.15;
+  word-break: break-word;
+  text-align: center;
+}
+.match-pill .dot{
+  width:8px; height:8px; border-radius:50%;
+  background:#00ffcc; box-shadow:0 0 8px #00ffcc88; flex:0 0 auto;
+}
+
   </style>
 </head>
 <body>
@@ -336,6 +362,50 @@
       betwinner:  { label: "Betwinner",  url: "https://betwinner.com/hu" },
       funbet:     { label: "Funbet",     url: "https://funbet.com/hu" }
     };
+
+    function getMatchName(){
+  // Hidden mező elsőbbség, különben URL param
+  return _getHiddenVal('Meccs') ?? getCaseInsensitiveParam('Meccs');
+}
+
+function renderMatchPill(){
+  const matchName = getMatchName();
+  const calc = document.querySelector('.calculator');
+  if (!calc) return;
+
+  // H1 után jelenjen meg
+  const h1 = calc.querySelector('h1');
+  if (!h1) return;
+
+  // Ha nincs meccsnév: tüntessük el a wrap-et, ha létezik
+  if (!matchName || String(matchName).trim() === '') {
+    const oldWrap = document.getElementById('matchPillWrap');
+    if (oldWrap) oldWrap.remove();
+    return;
+  }
+
+  // Létrehozás vagy frissítés
+  let wrap = document.getElementById('matchPillWrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'matchPillWrap';
+    wrap.className = 'match-wrap';
+
+    const pill = document.createElement('div');
+    pill.className = 'match-pill';
+    pill.id = 'matchPill';
+    pill.setAttribute('aria-label', 'Mérkőzés');
+    pill.title = matchName; // teljes szöveg tooltip
+    pill.innerHTML = `<span class="dot" aria-hidden="true"></span><span class="text"></span>`;
+
+    wrap.appendChild(pill);
+    h1.insertAdjacentElement('afterend', wrap);
+  }
+
+  const pillText = document.querySelector('#matchPill .text');
+  if (pillText) pillText.textContent = matchName;
+}
+
 
     // Deviza módok a tét mezőkhöz: 'HUF' vagy 'EUR'
     let stakeMode1 = 'HUF';
@@ -1589,3 +1659,4 @@ function renderEditableStakes(initialStake1HUF, initialStake2HUF) {
 </body>
 
 </html>
+
