@@ -51,6 +51,7 @@
     border: 2px solid #444c56; background-color: #1f262d; color: #e0e0e0;
     outline-color: #00ff88; transition: border-color 0.25s ease, box-shadow 0.25s ease;
     box-sizing: border-box; margin-bottom: 4px; box-shadow: 0 1px 6px #00ffc021 inset;
+    font-variant-numeric: tabular-nums;
   }
   input[type="number"]::placeholder { color: #777c85; }
   input[type="number"]:focus { border-color: #00ff88; box-shadow: 0 0 8px #00ff8844, 0 1px 6px #00ffc021 inset; }
@@ -75,12 +76,12 @@
   .row { margin-top: 5px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
   .label-text { color: #b0b0b0; font-weight: 600; }
   .value-input { text-align: right; }
-  .value-text { color: #00ff88; font-weight: 800; text-shadow: 0 0 6px #00ff8844; }
+  .value-text { color: #00ff88; font-weight: 800; text-shadow: 0 0 6px #00ff8844; font-variant-numeric: tabular-nums; }
   .guaranteed-label { color: #a0ffb4; font-weight: 700; }
-  .guaranteed-value { color: #a0ffb4; font-weight: 800; text-shadow: 0 0 8px #a0ffb455; white-space: nowrap; }
+  .guaranteed-value { color: #a0ffb4; font-weight: 800; text-shadow: 0 0 8px #a0ffb455; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .tip-label { color: #ffd166; font-weight: 700; font-size: 1rem; }
   .tip-value { color: #ffd166; font-weight: 600; font-size: 0.95rem; line-height: 1.3; margin-bottom: 8px; text-align: left; }
-  .eur-value, .ft-value { font-size: 0.78em; color: #23ffd6; font-weight: 600; }
+  .eur-value, .ft-value { font-size: 0.78em; color: #23ffd6; font-weight: 600; font-variant-numeric: tabular-nums; }
 
   .alt-wrap{ display:flex; justify-content:flex-end; align-items:center; gap:8px; margin-top: 2px; min-height: 1.2em; }
   .swap-emoji-inline{ width: 1em; height: 1em; cursor: pointer; user-select: none; }
@@ -721,7 +722,7 @@
     const rawS2HUF = displayToHUF(rawS2Disp, stakeMode2);
 
     if (isFocusedS1) return roundedPairFrom('s1', rawS1HUF, (rawS1HUF * o1) / o2, o1, o2);
-    if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, o1, o2);
+    if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, rawS2HUF, o1, o2); // ✅ bugfix: átadjuk a s2HUF-ot is
     return roundedPairFrom('s1', rawS1HUF, rawS2HUF, o1, o2);
   }
 
