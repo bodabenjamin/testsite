@@ -67,18 +67,22 @@
     background: linear-gradient(180deg,#222a33 0%, #1b232a 100%);
   }
 
-  /* ===== FINOM TUNING: Odds cím + apró hint ===== */
+  /* ===== FINOM TUNING: Odds cím ===== */
   .odds-title{
     color:#e8fbff; font-weight:800; letter-spacing:.015em;
-    display:flex; align-items:center; gap:8px; margin-bottom:6px;
+    display:flex; align-items:center; gap:8px; margin-bottom:8px;
   }
   .odds-title::before{
     content:""; width:8px; height:8px; border-radius:50%;
     background:#00e5ff; box-shadow:0 0 10px #00e5ff66;
   }
-  .odds-hint{
-    margin-top:4px; margin-bottom:8px; font-size:.83rem; line-height:1.2;
-    color:#a7b3bd; opacity:.85;
+
+  /* >>> ÚJ: az Odds 1/2 egymás mellett desktopon <<< */
+  .odds-grid{ display:grid; gap:12px; margin-bottom: 6px; }
+  .odds-item{ display:flex; flex-direction:column; }
+  .odds-item .odds-title{ margin-top:0; } /* ne legyen extra felső margó a gridben */
+  @media (min-width: 560px){
+    .odds-grid{ grid-template-columns: 1fr 1fr; }
   }
 
   button, .book-link {
@@ -97,7 +101,6 @@
   }
   .book-link:hover, .book-link:focus { background: linear-gradient(90deg, #00bfa5, #00ffcc); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.9); }
 
-  /* Finom elválasztó a fogadóiroda gombok után (csak ha nem üres) */
   #bookmakerButtons:not(:empty){ margin-top: 6px; margin-bottom: 12px; }
   #bookmakerButtons:not(:empty)::after{
     content:""; display:block; height:1px; margin:12px 0 4px 0;
@@ -106,18 +109,7 @@
 
   .result { margin-top: 28px; font-weight: 700; font-size: 1.15rem; line-height: 1.5; color: #e0e0e0; text-align: left; }
   .row { margin-top: 5px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
-
-  /* ===== TÉT CÍM FINOM TUNING (marad) ===== */
   .label-text { color: #b0b0b0; font-weight: 600; }
-  .stake-title{
-    color:#e8ffee; font-weight: 800; letter-spacing:.015em;
-    display:flex; align-items:center; gap:8px;
-  }
-  .stake-title::before{
-    content:""; width:8px; height:8px; border-radius:50%;
-    background:#00ff88; box-shadow:0 0 10px #00ff8866;
-  }
-
   .value-input { text-align: right; }
   .value-text { color: #00ff88; font-weight: 800; text-shadow: 0 0 6px #00ff8844; font-variant-numeric: tabular-nums; }
   .guaranteed-label { color: #a0ffb4; font-weight: 700; }
@@ -161,7 +153,6 @@
     .logo { width: 50px; height: 50px; }
     .logo-wrapper { margin-bottom: 14px; }
     button.copy-btn { right: 6px; top: 6px; height: 30px; min-width: 34px; }
-
     .guaranteed-row .guaranteed-label,
     .guaranteed-row .guaranteed-value { font-size: .95rem; }
   }
@@ -170,7 +161,7 @@
   .is-zero     { color: #ffd166 !important; text-shadow: 0 0 8px #ffd16655 !important; }
   .is-negative { color: #ff6b6b !important; text-shadow: 0 0 8px #ff6b6b55 !important; }
 
-  /* === Modálok, popupok (változatlan) === */
+  /* === Modálok, popupok === */
   .modal-backdrop{ position: fixed; inset: 0; background: rgba(0,0,0,.45); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 999; }
   .modal-backdrop.show{ opacity: 1; pointer-events: auto; }
   .modal{ position: fixed; inset: 0; display: grid; place-items: center; z-index: 1000; pointer-events: none; }
@@ -242,7 +233,7 @@
     #settingsModal, #settingsBackdrop { display: none !important; }
   }
 
-  /* ===== F1/F2 pill finom tuning ===== */
+  /* F1/F2 badge */
   .bet-pill{
     align-self: flex-start;
     display: inline-flex;
@@ -265,7 +256,7 @@
     border-radius:3px; background:#00ff88b3; box-shadow:0 0 10px #00ff8866;
   }
 
-  /* Mérkőzés badge (változatlan) */
+  /* Mérkőzés badge */
   .match-wrap{ display:flex; justify-content:center; align-items:center; margin: -6px 0 12px 0; }
   .match-pill{
     display:inline-flex; align-items:center; gap:8px;
@@ -330,14 +321,20 @@
     <input type="text" id="F1" hidden>
     <input type="text" id="F2" hidden>
 
-    <!-- FINOMÍTOTT Odds blokkok -->
-    <label for="odds1" id="labelOdds1" class="odds-title">Odds 1</label>
-    <input type="number" id="odds1" step="0.01" min="1.01" placeholder="pl. 1,74" value="1.74" aria-describedby="odds1Hint" />
-    <div class="odds-hint" id="odds1Hint">Minimum 1.01 – tizedeshez pont vagy vessző is jó.</div>
+    <!-- Mérkőzés pill (automatikusan megjelenik, ha van Meccs param) -->
+    <!-- (JS generálja, itt nincs markup) -->
 
-    <label for="odds2" id="labelOdds2" class="odds-title">Odds 2</label>
-    <input type="number" id="odds2" step="0.01" min="1.01" placeholder="pl. 2,63" value="2.63" aria-describedby="odds2Hint" />
-    <div class="odds-hint" id="odds2Hint">Minimum 1.01 – tizedeshez pont vagy vessző is jó.</div>
+    <!-- >>> ÚJ: Odds 1/2 egymás mellett (mobilon egymás alatt) + a hint ELTÁVOLÍTVA <<< -->
+    <div class="odds-grid">
+      <div class="odds-item">
+        <label for="odds1" id="labelOdds1" class="odds-title">Odds 1</label>
+        <input type="number" id="odds1" step="0.01" min="1.01" placeholder="pl. 1,74" value="1.74" />
+      </div>
+      <div class="odds-item">
+        <label for="odds2" id="labelOdds2" class="odds-title">Odds 2</label>
+        <input type="number" id="odds2" step="0.01" min="1.01" placeholder="pl. 2,63" value="2.63" />
+      </div>
+    </div>
 
     <!-- Teljes tét (rejtett, belső) -->
     <label for="stake">Teljes tét (Ft)</label>
@@ -456,7 +453,7 @@
     try {
       applyURLParamsToFields();
 
-      // ⬇️ Hidden F1/F2/Meccs feltöltés case-insensitive módon
+      // Hidden F1/F2/Meccs feltöltés case-insensitive módon
       const f1Param = getCaseInsensitiveParam('F1');
       const f2Param = getCaseInsensitiveParam('F2');
       const meccsParam = getCaseInsensitiveParam('Meccs');
@@ -1136,7 +1133,7 @@
     row1.className = 'row';
 
     const label1 = document.createElement('span');
-    label1.className = 'label-text stake-title';
+    label1.className = 'label-text';
     label1.id = 'stake1Label';
     label1.textContent = `${labelOdds1.textContent} tét (${stakeMode1 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
@@ -1231,7 +1228,7 @@
     row2.className = 'row';
 
     const label2 = document.createElement('span');
-    label2.className = 'label-text stake-title';
+    label2.className = 'label-text';
     label2.id = 'stake2Label';
     label2.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
