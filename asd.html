@@ -444,17 +444,6 @@
   let isFocusedS1 = false;
   let isFocusedS2 = false;
 
-  // === SZINKRON HELPER a rejtett #stake mezőhöz ===
-  function setStakeHidden(totalHUF){
-    const el = document.getElementById('stake');
-    if (!el) return;
-    const val = String(Math.round(Number(totalHUF) || 0));
-    el.value = val;
-    // bővítmények / content script számára is jelezzük a változást:
-    el.dispatchEvent(new Event('input',  { bubbles:true }));
-    el.dispatchEvent(new Event('change', { bubbles:true }));
-  }
-
   // BETÖLTÉSKOR
   window.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.calculator')?.classList.add('visible');
@@ -672,8 +661,7 @@
       isUpdating = true;
       writeDisplayStake(stake1Input, initialStake1HUF, stakeMode1);
       writeDisplayStake(stake2Input, initialStake2HUF, stakeMode2);
-      // stakeField.value  = Math.round(initialStake1HUF + initialStake2HUF).toString();
-      setStakeHidden(initialStake1HUF + initialStake2HUF);
+      stakeField.value  = Math.round(initialStake1HUF + initialStake2HUF).toString();
       isUpdating = false;
       updateStakeAltDisplays();
       syncInputSteps();
@@ -758,8 +746,7 @@
     isUpdating = true;
     writeDisplayStake(stake1Input, rs1HUF, stakeMode1);
     writeDisplayStake(stake2Input, rs2HUF, stakeMode2);
-    // stakeField.value  = String(rs1HUF + rs2HUF);
-    setStakeHidden(rs1HUF + rs2HUF);
+    stakeField.value  = String(rs1HUF + rs2HUF);
     isUpdating = false;
     updateProfits(o1, o2);
     updateStakeAltDisplays();
@@ -819,8 +806,7 @@
 
     isUpdating = true;
     writeDisplayStake(stake2Input, rs2HUF, stakeMode2);
-    // stakeField.value  = String(Math.round(s1HUF + rs2HUF));
-    setStakeHidden(s1HUF + rs2HUF);
+    stakeField.value  = String(Math.round(s1HUF + rs2HUF));
     isUpdating = false;
 
     updateProfits(odds1, odds2);
@@ -841,8 +827,7 @@
 
     isUpdating = true;
     writeDisplayStake(stake1Input, rs1HUF, stakeMode1);
-    // stakeField.value  = String(Math.round(rs1HUF + s2HUF));
-    setStakeHidden(rs1HUF + s2HUF);
+    stakeField.value  = String(Math.round(rs1HUF + s2HUF));
     isUpdating = false;
 
     updateProfits(odds1, odds2);
@@ -902,8 +887,7 @@
       else                                        gv.classList.add('is-zero');
     }
 
-    // stakeField.value = String(Math.round(totalInvested));
-    setStakeHidden(totalInvested);
+    stakeField.value = String(Math.round(totalInvested));
   }
 
   function updateStakeAltDisplays() {
@@ -1240,7 +1224,7 @@
     const label2 = document.createElement('span');
     label2.className = 'label-text stake-title';
     label2.id = 'stake2Label';
-    label2.textContent = `${labelOdds2.textcontent ?? labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
+    label2.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
     const stake2Box = document.createElement('div');
     stake2Box.style.display = 'flex';
