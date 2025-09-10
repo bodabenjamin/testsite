@@ -46,7 +46,7 @@
 
   label { display: block; text-align: left; margin-top: 16px; margin-bottom: 8px; font-weight: 600; color: #b0b0b0; font-size: 1rem; }
 
-  /* ===== TÉT MEZŐ FINOM TUNING ===== */
+  /* ===== FINOM TUNING: minden number input (Odds + tét) ===== */
   input[type="number"], .value-input {
     width: 100%; padding: 12px 14px; font-size: 1rem; border-radius: 12px;
     border: 2px solid #3e4650; background: linear-gradient(180deg,#20262e 0%, #1a2128 100%);
@@ -65,6 +65,20 @@
       0 0 22px rgba(0,255,136,.12),
       inset 0 1px 0 rgba(255,255,255,.05);
     background: linear-gradient(180deg,#222a33 0%, #1b232a 100%);
+  }
+
+  /* ===== FINOM TUNING: Odds cím + apró hint ===== */
+  .odds-title{
+    color:#e8fbff; font-weight:800; letter-spacing:.015em;
+    display:flex; align-items:center; gap:8px; margin-bottom:6px;
+  }
+  .odds-title::before{
+    content:""; width:8px; height:8px; border-radius:50%;
+    background:#00e5ff; box-shadow:0 0 10px #00e5ff66;
+  }
+  .odds-hint{
+    margin-top:4px; margin-bottom:8px; font-size:.83rem; line-height:1.2;
+    color:#a7b3bd; opacity:.85;
   }
 
   button, .book-link {
@@ -93,7 +107,7 @@
   .result { margin-top: 28px; font-weight: 700; font-size: 1.15rem; line-height: 1.5; color: #e0e0e0; text-align: left; }
   .row { margin-top: 5px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
 
-  /* ===== TÉT CÍM FINOM TUNING ===== */
+  /* ===== TÉT CÍM FINOM TUNING (marad) ===== */
   .label-text { color: #b0b0b0; font-weight: 600; }
   .stake-title{
     color:#e8ffee; font-weight: 800; letter-spacing:.015em;
@@ -156,7 +170,7 @@
   .is-zero     { color: #ffd166 !important; text-shadow: 0 0 8px #ffd16655 !important; }
   .is-negative { color: #ff6b6b !important; text-shadow: 0 0 8px #ff6b6b55 !important; }
 
-  /* === Modálok, beállítások, popupok (változatlanok) === */
+  /* === Modálok, popupok (változatlan) === */
   .modal-backdrop{ position: fixed; inset: 0; background: rgba(0,0,0,.45); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 999; }
   .modal-backdrop.show{ opacity: 1; pointer-events: auto; }
   .modal{ position: fixed; inset: 0; display: grid; place-items: center; z-index: 1000; pointer-events: none; }
@@ -266,10 +280,12 @@
 <body>
   <div class="calculator" role="main" aria-label="Arbitrázs kalkulátor">
 
+    <!-- Beállítások gomb -->
     <button class="settings-btn" id="settingsBtn" aria-label="Beállítások">
       <img src="123.png" alt="Beállítások">
     </button>
 
+    <!-- Beállítások -->
     <div class="modal-backdrop" id="settingsBackdrop" hidden></div>
     <div class="modal" id="settingsModal" hidden>
       <div class="box">
@@ -307,18 +323,23 @@
 
     <h1>Arbitrázs Kalkulátor</h1>
 
+    <!-- Hidden mezők -->
     <input type="text" id="odds1Book" hidden>
     <input type="text" id="odds2Book" hidden>
     <input type="text" id="Meccs" hidden>
     <input type="text" id="F1" hidden>
     <input type="text" id="F2" hidden>
 
-    <label for="odds1" id="labelOdds1">Odds 1</label>
-    <input type="number" id="odds1" step="0.01" min="1.01" placeholder="pl. 1,74" value="1.74" />
+    <!-- FINOMÍTOTT Odds blokkok -->
+    <label for="odds1" id="labelOdds1" class="odds-title">Odds 1</label>
+    <input type="number" id="odds1" step="0.01" min="1.01" placeholder="pl. 1,74" value="1.74" aria-describedby="odds1Hint" />
+    <div class="odds-hint" id="odds1Hint">Minimum 1.01 – tizedeshez pont vagy vessző is jó.</div>
 
-    <label for="odds2" id="labelOdds2">Odds 2</label>
-    <input type="number" id="odds2" step="0.01" min="1.01" placeholder="pl. 2,63" value="2.63" />
+    <label for="odds2" id="labelOdds2" class="odds-title">Odds 2</label>
+    <input type="number" id="odds2" step="0.01" min="1.01" placeholder="pl. 2,63" value="2.63" aria-describedby="odds2Hint" />
+    <div class="odds-hint" id="odds2Hint">Minimum 1.01 – tizedeshez pont vagy vessző is jó.</div>
 
+    <!-- Teljes tét (rejtett, belső) -->
     <label for="stake">Teljes tét (Ft)</label>
     <input type="number" id="stake" step="1" min="1" placeholder="pl. 10000" value="10000" />
 
@@ -332,6 +353,7 @@
   </div>
 
   <script>
+  // === Hidden mezők olvasása (helper) ===
   const _hidden = id => document.getElementById(id);
   const _getHiddenVal = id => {
     const el = _hidden(id);
@@ -339,6 +361,7 @@
   };
   const _getBookVal = key => _getHiddenVal(key) ?? (new URLSearchParams(window.location.search)).get(key);
 
+  // ==== Alapbeállítások ====
   const eurRate = 393;
   const GUIDE_URL = "https://discord.com/channels/1352389902033096724/1400422649502502953/1402328347480162324";
   const POPUP_AUTO_DISMISS_MS = 7500;
@@ -358,6 +381,7 @@
     funbet:     { label: "Funbet",     url: "https://funbet.com/hu" }
   };
 
+  // --- Case-insensitive URL param olvasás ---
   function getCaseInsensitiveParam(nameCI) {
     const params = new URLSearchParams(window.location.search);
     for (const [k, v] of params.entries()) {
@@ -370,29 +394,47 @@
   }
   function renderMatchPill(){
     const matchName = getMatchName();
-    const calc = document.querySelector('.calculator'); if (!calc) return;
-    const h1 = calc.querySelector('h1'); if (!h1) return;
+    const calc = document.querySelector('.calculator');
+    if (!calc) return;
+
+    const h1 = calc.querySelector('h1');
+    if (!h1) return;
 
     if (!matchName || String(matchName).trim() === '') {
-      const oldWrap = document.getElementById('matchPillWrap'); if (oldWrap) oldWrap.remove(); return;
+      const oldWrap = document.getElementById('matchPillWrap');
+      if (oldWrap) oldWrap.remove();
+      return;
     }
+
     let wrap = document.getElementById('matchPillWrap');
     if (!wrap) {
-      wrap = document.createElement('div'); wrap.id = 'matchPillWrap'; wrap.className = 'match-wrap';
+      wrap = document.createElement('div');
+      wrap.id = 'matchPillWrap';
+      wrap.className = 'match-wrap';
+
       const pill = document.createElement('div');
-      pill.className = 'match-pill'; pill.id = 'matchPill'; pill.setAttribute('aria-label','Mérkőzés'); pill.title = matchName;
+      pill.className = 'match-pill';
+      pill.id = 'matchPill';
+      pill.setAttribute('aria-label', 'Mérkőzés');
+      pill.title = matchName;
       pill.innerHTML = `<span class="dot" aria-hidden="true"></span><span class="text"></span>`;
-      wrap.appendChild(pill); h1.insertAdjacentElement('afterend', wrap);
+
+      wrap.appendChild(pill);
+      h1.insertAdjacentElement('afterend', wrap);
     }
-    const pillText = document.querySelector('#matchPill .text'); if (pillText) pillText.textContent = matchName;
+
+    const pillText = document.querySelector('#matchPill .text');
+    if (pillText) pillText.textContent = matchName;
   }
 
+  // Deviza módok a tét mezőkhöz: 'HUF' vagy 'EUR'
   let stakeMode1 = 'HUF';
   let stakeMode2 = 'HUF';
+
   let stake1Input, stake2Input;
   let isUpdating = false;
 
-  const DEBOUNCE_MS = 2000;
+  const DEBOUNCE_MS   = 2000;
   let stakeRoundTimer1 = null;
   let stakeRoundTimer2 = null;
 
@@ -408,11 +450,13 @@
   let isFocusedS1 = false;
   let isFocusedS2 = false;
 
+  // BETÖLTÉSKOR
   window.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.calculator')?.classList.add('visible');
     try {
       applyURLParamsToFields();
 
+      // ⬇️ Hidden F1/F2/Meccs feltöltés case-insensitive módon
       const f1Param = getCaseInsensitiveParam('F1');
       const f2Param = getCaseInsensitiveParam('F2');
       const meccsParam = getCaseInsensitiveParam('Meccs');
@@ -435,32 +479,48 @@
     }
   });
 
+  // ==== Eszköz detektálás (mobil vs. desktop) ====
   function isMobileDevice(){
     const ua = navigator.userAgent || '';
     const mobileUA = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(ua);
     const touchCoarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     return mobileUA || touchCoarse;
   }
-  function isDesktopDevice(){ return !isMobileDevice(); }
+  function isDesktopDevice(){
+    return !isMobileDevice();
+  }
 
-  function stepForHUF(valueHuf){ const n = Number(valueHuf) || 0; return n < 10000 ? 50 : 100; }
-  function stepForMode(mode, currentHufValue){ return mode === 'EUR' ? 0.1 : stepForHUF(currentHufValue); }
+  // ==== Segédek ====
+  function stepForHUF(valueHuf){
+    const n = Number(valueHuf) || 0;
+    return n < 10000 ? 50 : 100;
+  }
+  function stepForMode(mode, currentHufValue){
+    return mode === 'EUR' ? 0.1 : stepForHUF(currentHufValue);
+  }
 
   function sanitizeUrl(u) {
-    try { const url = new URL(u, window.location.origin);
+    try {
+      const url = new URL(u, window.location.origin);
       if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
       return url.href;
     } catch { return null; }
   }
   function resolveBookmakerUrl(key, defaultUrl) {
     const override = getCaseInsensitiveParam(`${key}url`);
-    if (override) { const sanitized = sanitizeUrl(override); if (sanitized) return sanitized; }
+    if (override) {
+      const sanitized = sanitizeUrl(override);
+      if (sanitized) return sanitized;
+    }
     return defaultUrl;
   }
-  function parseNum(el) { return Number(String(el.value).replace(',', '.')); }
+  function parseNum(el) {
+    return Number(String(el.value).replace(',', '.'));
+  }
 
   function applyURLParamsToFields() {
     const params = new URLSearchParams(window.location.search);
+
     const customLabel1 = params.get('odds1Label');
     const customLabel2 = params.get('odds2Label');
     if (customLabel1) labelOdds1.textContent = customLabel1;
@@ -552,8 +612,13 @@
     updateURLParams();
   });
 
-  function initCalculate() { stake1Input = null; stake2Input = null; calculateArbitrage(); }
+  function initCalculate() {
+    stake1Input = null;
+    stake2Input = null;
+    calculateArbitrage();
+  }
 
+  // == Deviza ↔ HUF konverzió segédek ==
   function displayToHUF(displayValue, mode){
     const n = Number(String(displayValue).replace(',', '.')) || 0;
     return mode === 'EUR' ? n * eurRate : n;
@@ -566,25 +631,33 @@
     if (mode === 'EUR') return (Math.round(n * 10) / 10).toFixed(1);
     return Math.round(n).toString();
   }
-  function roundToTenthEUR(x) { const n = Number(x); if (!Number.isFinite(n)) return null; return Math.round(n * 10) / 10; }
+  function roundToTenthEUR(x) {
+    const n = Number(x);
+    if (!Number.isFinite(n)) return null;
+    return Math.round(n * 10) / 10;
+  }
 
   function calculateArbitrage() {
     const MIN_ODDS = 1.01;
+
     const odds1      = parseFloat(odds1Field.value.replace(',', '.'));
     const odds2      = parseFloat(odds2Field.value.replace(',', '.'));
-    const totalStake = parseFloat(stakeField.value.replace(',', '.'));
+    const totalStake = parseFloat(stakeField.value.replace(',', '.')); // HUF
 
     resultDiv.innerHTML = '';
     errorDiv.textContent = '';
 
     if (isNaN(odds1) || isNaN(odds2) || isNaN(totalStake)) {
-      errorDiv.textContent = 'Kérjük, adjon meg érvényes számokat minden mezőben.'; return;
+      errorDiv.textContent = 'Kérjük, adjon meg érvényes számokat minden mezőben.';
+      return;
     }
     if (odds1 < MIN_ODDS || odds2 < MIN_ODDS || totalStake <= 0) {
-      errorDiv.textContent = `Az oddsok legalább ${MIN_ODDS.toFixed(2)}-ek, a tét pedig legyen nagyobb 0-nál.`; return;
+      errorDiv.textContent = `Az oddsok legalább ${MIN_ODDS.toFixed(2)}-ek, a tét pedig legyen nagyobb 0-nál.`;
+      return;
     }
 
     const arbPercent = 1 / odds1 + 1 / odds2;
+
     const initialStake1HUF = (totalStake / odds1) / arbPercent;
     const initialStake2HUF = (totalStake / odds2) / arbPercent;
 
@@ -600,9 +673,11 @@
       updateStakeAltDisplays();
       syncInputSteps();
     }
+
     updateProfits(odds1, odds2);
   }
 
+  // ==== Másolás ====
   function copyToClipboard(text) {
     if (!text && text !== 0) return Promise.resolve(false);
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -610,26 +685,46 @@
     }
     try {
       const ta = document.createElement('textarea');
-      ta.value = String(text); ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
-      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, String(text).length);
-      const ok = document.execCommand('copy'); document.body.removeChild(ta);
+      ta.value = String(text);
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, String(text).length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
       return Promise.resolve(!!ok);
-    } catch { return Promise.resolve(false); }
+    } catch {
+      return Promise.resolve(false);
+    }
   }
   function showCopiedState(btn, original = "📋") {
     btn.classList.add('copied');
     const prev = btn.textContent;
     btn.textContent = '✓';
-    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = original; }, 1500);
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.textContent = original;
+    }, 1500);
   }
 
+  // ==== Dinamikus kerekítés + léptetés (HUF térben) ====
   function roundedPairFrom(source, s1HUF, s2HUF, o1, o2){
     if (source === 's2') {
-      let step2 = stepForHUF(s2HUF); s2HUF = Math.round(s2HUF / step2) * step2;
-      s1HUF = (s2HUF * o2) / o1; let step1 = stepForHUF(s1HUF); s1HUF = Math.round(s1HUF / step1) * step1;
+      let step2 = stepForHUF(s2HUF);
+      s2HUF = Math.round(s2HUF / step2) * step2;
+
+      s1HUF = (s2HUF * o2) / o1;
+      let step1 = stepForHUF(s1HUF);
+      s1HUF = Math.round(s1HUF / step1) * step1;
     } else {
-      let step1 = stepForHUF(s1HUF); s1HUF = Math.round(s1HUF / step1) * step1;
-      s2HUF = (s1HUF * o1) / o2; let step2 = stepForHUF(s2HUF); s2HUF = Math.round(s2HUF / step2) * step2;
+      let step1 = stepForHUF(s1HUF);
+      s1HUF = Math.round(s1HUF / step1) * step1;
+
+      s2HUF = (s1HUF * o1) / o2;
+      let step2 = stepForHUF(s2HUF);
+      s2HUF = Math.round(s2HUF / step2) * step2;
     }
     return [Math.max(0, Math.round(s1HUF)), Math.max(0, Math.round(s2HUF))];
   }
@@ -637,8 +732,10 @@
   function getDisplayStakesHUF(o1, o2){
     const rawS1Disp = stake1Input ? Number(String(stake1Input.value).replace(',', '.')) || 0 : 0;
     const rawS2Disp = stake2Input ? Number(String(stake2Input.value).replace(',', '.')) || 0 : 0;
+
     const rawS1HUF = displayToHUF(rawS1Disp, stakeMode1);
     const rawS2HUF = displayToHUF(rawS2Disp, stakeMode2);
+
     if (isFocusedS1) return roundedPairFrom('s1', rawS1HUF, (rawS1HUF * o1) / o2, o1, o2);
     if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, o1, o2);
     return roundedPairFrom('s1', rawS1HUF, rawS2HUF, o1, o2);
@@ -702,6 +799,7 @@
     inputEl.value = formatDisplay(disp, mode);
   }
 
+  // ==== Élő frissítések ====
   function onStake1Change() {
     if (isUpdating) return;
     const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
@@ -744,6 +842,7 @@
     updateURLParams();
   }
 
+  // ==== Profit és alternatív kijelzés ====
   function updateProfits(odds1, odds2) {
     if (!stake1Input || !stake2Input) return;
 
@@ -771,18 +870,23 @@
       : '- Ft';
 
     const LOW_BAND = 1;
-    [p1El, p2El, gv].forEach(el => { el.classList.remove('is-positive','is-zero','is-negative'); });
+
+    [p1El, p2El, gv].forEach(el => {
+      el.classList.remove('is-positive','is-zero','is-negative');
+    });
 
     if (Number.isFinite(profit1)) {
       if (Math.abs(p1pct) <= LOW_BAND) p1El.classList.add('is-zero');
       else if (profit1 > 0)            p1El.classList.add('is-positive');
       else                             p1El.classList.add('is-negative');
     }
+
     if (Number.isFinite(profit2)) {
       if (Math.abs(p2pct) <= LOW_BAND) p2El.classList.add('is-zero');
       else if (profit2 > 0)            p2El.classList.add('is-positive');
       else                             p2El.classList.add('is-negative');
     }
+
     if (Number.isFinite(guaranteed)) {
       if (Math.abs(guaranteedPercent) <= LOW_BAND) gv.classList.add('is-zero');
       else if (guaranteed > 0)                    gv.classList.add('is-positive');
@@ -804,22 +908,18 @@
 
     if (stakeMode1 === 'EUR') {
       const ft1 = Number.isFinite(s1HUF) ? s1HUF : null;
-      s1AltEl.className = 'ft-value';
-      s1AltEl.textContent = ft1 != null ? `= ${ft1.toLocaleString('hu-HU')} Ft` : '';
+      if (s1AltEl){ s1AltEl.className = 'ft-value'; s1AltEl.textContent = ft1 != null ? `= ${ft1.toLocaleString('hu-HU')} Ft` : ''; }
     } else {
       const eur1 = Number.isFinite(s1HUF) ? roundToTenthEUR(s1HUF / eurRate) : null;
-      s1AltEl.className = 'eur-value';
-      s1AltEl.textContent = eur1 != null ? `= ${eur1.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : '';
+      if (s1AltEl){ s1AltEl.className = 'eur-value'; s1AltEl.textContent = eur1 != null ? `= ${eur1.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : ''; }
     }
 
     if (stakeMode2 === 'EUR') {
       const ft2 = Number.isFinite(s2HUF) ? s2HUF : null;
-      s2AltEl.className = 'ft-value';
-      s2AltEl.textContent = ft2 != null ? `= ${ft2.toLocaleString('hu-HU')} Ft` : '';
+      if (s2AltEl){ s2AltEl.className = 'ft-value'; s2AltEl.textContent = ft2 != null ? `= ${ft2.toLocaleString('hu-HU')} Ft` : ''; }
     } else {
       const eur2 = Number.isFinite(s2HUF) ? roundToTenthEUR(s2HUF / eurRate) : null;
-      s2AltEl.className = 'eur-value';
-      s2AltEl.textContent = eur2 != null ? `= ${eur2.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : '';
+      if (s2AltEl){ s2AltEl.className = 'eur-value'; s2AltEl.textContent = eur2 != null ? `= ${eur2.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : ''; }
     }
 
     const s1Label = document.getElementById('stake1Label');
@@ -848,11 +948,14 @@
     updateStakeAltDisplays();
   }
 
+  // Betöltéskori azonnali kerekítés + mozgásfigyelők a commit-hoz
   window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => roundAll(), 0);
+
     window.addEventListener('wheel', () => triggerCommitOnUserMotion(), { passive: true });
     window.addEventListener('scroll', () => triggerCommitOnUserMotion(), { passive: true });
     window.addEventListener('touchmove', () => triggerCommitOnUserMotion(), { passive: true });
+
     document.addEventListener('pointerdown', (e) => {
       if (stake1Input && stake1Input.contains?.(e.target)) return;
       if (stake2Input && stake2Input.contains?.(e.target)) return;
@@ -860,6 +963,9 @@
     }, { capture: true });
   });
 
+  /* =========================
+     Beállítások MODÁL + Auto Open (csak Desktop)
+     ========================= */
   const LS_KEY_AUTO_OPEN = 'autoOpenLinks';
   const SS_KEY_ALREADY_TRIED = 'autoOpen_tried';
 
@@ -873,6 +979,7 @@
       if (backdrop) backdrop.remove();
       return;
     }
+
     const btn = document.getElementById('settingsBtn');
     const modal = document.getElementById('settingsModal');
     const backdrop = document.getElementById('settingsBackdrop');
@@ -890,6 +997,7 @@
     };
 
     if (guideLinkEl) guideLinkEl.href = GUIDE_URL;
+
     const saved = (localStorage.getItem(LS_KEY_AUTO_OPEN) || 'false') === 'true';
     toggle.checked = saved;
 
@@ -897,63 +1005,115 @@
     closeX.addEventListener('click', closeSettings);
     backdrop.addEventListener('click', closeSettings);
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeSettings(); });
+
     toggle.addEventListener('change', ()=>{ localStorage.setItem(LS_KEY_AUTO_OPEN, toggle.checked ? 'true' : 'false'); });
   })();
 
-  function isMobileView(){ return window.matchMedia('(max-width: 600px)').matches; }
+  // Eszköz/nézet detektálás egyszerűsített
+  function isMobileView(){
+    return window.matchMedia('(max-width: 600px)').matches;
+  }
 
+  // Popup – mobilon középre modál, PC-n toast
   function showPopupHint(){
     if (isMobileView()){
-      const backdrop = document.createElement('div'); backdrop.className = 'modal-backdrop show';
-      const modal = document.createElement('div'); modal.className = 'modal popup-modal show';
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop show';
+
+      const modal = document.createElement('div');
+      modal.className = 'modal popup-modal show';
       modal.innerHTML = `
         <div class="box">
-          <div class="hdr"><div class="title">Automatikus nyitás blokkolva</div></div>
-          <div class="txt">Ha nem működik az automatikus megnyitás: nézd meg az útmutatót a Discord <b>#fogadási-beállítások</b> csatornában.</div>
-          <div class="btns"><a class="inline-link" href="${GUIDE_URL}" target="_blank" rel="noopener">Útmutató</a></div>
-        </div>`;
+          <div class="hdr">
+            <div class="title">Automatikus nyitás blokkolva</div>
+          </div>
+          <div class="txt">
+            Ha nem működik az automatikus megnyitás: nézd meg az útmutatót a Discord <b>#fogadási-beállítások</b> csatornában.
+          </div>
+          <div class="btns">
+            <a class="inline-link" href="${GUIDE_URL}" target="_blank" rel="noopener">Útmutató</a>
+          </div>
+        </div>
+      `;
+
       const removeAll = ()=>{ try{ backdrop.remove(); modal.remove(); }catch{} };
-      document.body.appendChild(backdrop); document.body.appendChild(modal);
-      setTimeout(removeAll, POPUP_AUTO_DISMISS_MS); [backdrop, modal].forEach(el=> el.addEventListener('click', removeAll));
+      document.body.appendChild(backdrop);
+      document.body.appendChild(modal);
+      setTimeout(removeAll, POPUP_AUTO_DISMISS_MS);
+      [backdrop, modal].forEach(el=> el.addEventListener('click', removeAll));
     } else {
-      const calc = document.querySelector('.calculator'); if (!calc) return;
-      const toast = document.createElement('div'); toast.className = 'calc-toast';
+      const calc = document.querySelector('.calculator');
+      if (!calc) return;
+
+      const toast = document.createElement('div');
+      toast.className = 'calc-toast';
       toast.innerHTML = `
         <div class="title">Automatikus nyitás blokkolva</div>
         <div class="txt">Ha nem működik az automatikus megnyitás: nézd meg az útmutatót a Discord <b>#fogadási-beállítások</b> csatornában.</div>
-        <div class="btns"><a class="inline-link" href="${GUIDE_URL}" target="_blank" rel="noopener">Útmutató</a></div>`;
-      calc.appendChild(toast); requestAnimationFrame(()=> toast.classList.add('show'));
-      const removeToast = ()=>{ try{ toast.remove(); }catch{} }; setTimeout(removeToast, POPUP_AUTO_DISMISS_MS); toast.addEventListener('click', removeToast);
+        <div class="btns">
+          <a class="inline-link" href="${GUIDE_URL}" target="_blank" rel="noopener">Útmutató</a>
+        </div>
+      `;
+      calc.appendChild(toast);
+      requestAnimationFrame(()=> toast.classList.add('show'));
+
+      const removeToast = ()=>{ try{ toast.remove(); }catch{} };
+      setTimeout(removeToast, POPUP_AUTO_DISMISS_MS);
+      toast.addEventListener('click', removeToast);
     }
   }
 
+  // Összegyűjti a linkeket az URL alapján
   function collectBookmakerUrls(){
     const params = new URLSearchParams(window.location.search);
     const keys = [params.get('odds1Book'), params.get('odds2Book')].filter(Boolean);
-    const seen = new Set(); const urls = [];
+    const seen = new Set();
+    const urls = [];
+
     keys.forEach(kRaw=>{
-      const k = String(kRaw).toLowerCase(); const bm = bookmakers[k];
+      const k = String(kRaw).toLowerCase();
+      const bm = bookmakers[k];
       if (!bm || seen.has(k)) return;
-      const url = resolveBookmakerUrl(k, bm.url); if (url) { urls.push(url); seen.add(k); }
+      const url = resolveBookmakerUrl(k, bm.url);
+      if (url) { urls.push(url); seen.add(k); }
     });
+
     return urls;
   }
 
+  // Próbál automatikusan megnyitni (csak 1x/session)
   function maybeAutoOpenLinks(){
     const enabled = (localStorage.getItem(LS_KEY_AUTO_OPEN) || 'false') === 'true';
     if (!enabled) return;
     if (sessionStorage.getItem(SS_KEY_ALREADY_TRIED) === '1') return;
-    const urls = collectBookmakerUrls(); if (!urls.length) return;
-    sessionStorage.setItem(SS_KEY_ALREADY_TRIED, '1');
-    let openedCount = 0;
-    urls.forEach(u=>{ try{ const w = window.open(u, '_blank', 'noopener'); if (w) openedCount++; }catch{} });
-    if (openedCount === 0){ showPopupHint(); }
-  }
-  window.addEventListener('DOMContentLoaded', ()=>{ setTimeout(maybeAutoOpenLinks, 300); });
 
+    const urls = collectBookmakerUrls();
+    if (!urls.length) return;
+
+    sessionStorage.setItem(SS_KEY_ALREADY_TRIED, '1');
+
+    let openedCount = 0;
+    urls.forEach(u=>{
+      try{
+        const w = window.open(u, '_blank', 'noopener');
+        if (w) openedCount++;
+      }catch{}
+    });
+
+    if (openedCount === 0){
+      showPopupHint();
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', ()=>{
+    setTimeout(maybeAutoOpenLinks, 300);
+  });
+
+  // Hidden oddsBook mezők figyelése
   window.addEventListener('DOMContentLoaded', () => {
     ['odds1Book','odds2Book'].forEach(id=>{
-      const el = document.getElementById(id); if (!el) return;
+      const el = document.getElementById(id);
+      if (!el) return;
       el.addEventListener('input', () => {
         autoSetCurrencyModesFromBooks();
         showBookmakerButtons();
@@ -965,16 +1125,18 @@
     });
   });
 
+  // ==== Szerkeszthető tétek felrajzolása + F1/F2 badge ====
   function renderEditableStakes(initialStake1HUF, initialStake2HUF) {
     resultDiv.innerHTML = '';
+
     const params = new URLSearchParams(window.location.search);
 
-    // === ODDS 1 blokk
+    // ODDS 1 blokk
     const row1 = document.createElement('div');
     row1.className = 'row';
 
     const label1 = document.createElement('span');
-    label1.className = 'label-text stake-title';   // << finomított cím
+    label1.className = 'label-text stake-title';
     label1.id = 'stake1Label';
     label1.textContent = `${labelOdds1.textContent} tét (${stakeMode1 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
@@ -983,6 +1145,7 @@
     stake1Box.style.flexDirection = 'column';
     stake1Box.style.width = '100%';
 
+    // F1 badge
     const f1Text = _getHiddenVal('F1') ?? getCaseInsensitiveParam('F1');
     if (f1Text) {
       const f1Badge = document.createElement('div');
@@ -1009,18 +1172,31 @@
 
     stake1Input.addEventListener('focus', () => { isFocusedS1 = true; });
     stake1Input.addEventListener('input', () => {
-      onStake1Change(); scheduleStakeRound('s1'); syncInputSteps();
+      onStake1Change();
+      scheduleStakeRound('s1');
+      syncInputSteps();
     });
     stake1Input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { isFocusedS1 = false; commitRound('s1'); stake1Input.blur(); }
+      if (e.key === 'Enter') {
+        isFocusedS1 = false;
+        commitRound('s1');
+        stake1Input.blur();
+      }
     });
-    stake1Input.addEventListener('blur', () => { isFocusedS1 = false; commitRound('s1'); });
+    stake1Input.addEventListener('blur', () => {
+      isFocusedS1 = false;
+      commitRound('s1');
+    });
     stake1Input.addEventListener('dblclick', async () => {
-      isFocusedS1 = false; commitRound('s1'); const ok = await copyToClipboard(stake1Input.value); if (ok) showCopiedState(copyBtn1);
+      isFocusedS1 = false; commitRound('s1');
+      const ok = await copyToClipboard(stake1Input.value);
+      if (ok) showCopiedState(copyBtn1);
     });
     copyBtn1.addEventListener('click', async () => {
-      isFocusedS1 = false; commitRound('s1'); setTimeout(async () => {
-        const ok = await copyToClipboard(stake1Input.value); if (ok) showCopiedState(copyBtn1);
+      isFocusedS1 = false; commitRound('s1');
+      setTimeout(async () => {
+        const ok = await copyToClipboard(stake1Input.value);
+        if (ok) showCopiedState(copyBtn1);
       }, 0);
     });
 
@@ -1050,12 +1226,12 @@
     row1.appendChild(label1);
     row1.appendChild(stake1Box);
 
-    // === ODDS 2 blokk
+    // ODDS 2 blokk
     const row2 = document.createElement('div');
     row2.className = 'row';
 
     const label2 = document.createElement('span');
-    label2.className = 'label-text stake-title';   // << finomított cím
+    label2.className = 'label-text stake-title';
     label2.id = 'stake2Label';
     label2.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
@@ -1064,6 +1240,7 @@
     stake2Box.style.flexDirection = 'column';
     stake2Box.style.width = '100%';
 
+    // F2 badge
     const f2Text = _getHiddenVal('F2') ?? getCaseInsensitiveParam('F2');
     if (f2Text) {
       const f2Badge = document.createElement('div');
@@ -1090,18 +1267,31 @@
 
     stake2Input.addEventListener('focus', () => { isFocusedS2 = true; });
     stake2Input.addEventListener('input', () => {
-      onStake2Change(); scheduleStakeRound('s2'); syncInputSteps();
+      onStake2Change();
+      scheduleStakeRound('s2');
+      syncInputSteps();
     });
     stake2Input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { isFocusedS2 = false; commitRound('s2'); stake2Input.blur(); }
+      if (e.key === 'Enter') {
+        isFocusedS2 = false;
+        commitRound('s2');
+        stake2Input.blur();
+      }
     });
-    stake2Input.addEventListener('blur', () => { isFocusedS2 = false; commitRound('s2'); });
+    stake2Input.addEventListener('blur', () => {
+      isFocusedS2 = false;
+      commitRound('s2');
+    });
     stake2Input.addEventListener('dblclick', async () => {
-      isFocusedS2 = false; commitRound('s2'); const ok = await copyToClipboard(stake2Input.value); if (ok) showCopiedState(copyBtn2);
+      isFocusedS2 = false; commitRound('s2');
+      const ok = await copyToClipboard(stake2Input.value);
+      if (ok) showCopiedState(copyBtn2);
     });
     copyBtn2.addEventListener('click', async () => {
-      isFocusedS2 = false; commitRound('s2'); setTimeout(async () => {
-        const ok = await copyToClipboard(stake2Input.value); if (ok) showCopiedState(copyBtn2);
+      isFocusedS2 = false; commitRound('s2');
+      setTimeout(async () => {
+        const ok = await copyToClipboard(stake2Input.value);
+        if (ok) showCopiedState(copyBtn2);
       }, 0);
     });
 
@@ -1131,41 +1321,75 @@
     row2.appendChild(label2);
     row2.appendChild(stake2Box);
 
-    // Profit sorok (változatlan)
+    // Profit sorok
     const rowProfit1 = document.createElement('div');
-    rowProfit1.className = 'row'; rowProfit1.id = 'profit1Row';
-    const labelP1 = document.createElement('span'); labelP1.className = 'label-text'; labelP1.textContent = 'Ha az 1-es nyer:';
-    const valueP1 = document.createElement('span'); valueP1.id = 'profit1Value'; valueP1.className = 'value-text';
-    rowProfit1.appendChild(labelP1); rowProfit1.appendChild(valueP1);
+    rowProfit1.className = 'row';
+    rowProfit1.id = 'profit1Row';
+    const labelP1 = document.createElement('span');
+    labelP1.className = 'label-text';
+    labelP1.textContent = 'Ha az 1-es nyer:';
+    const valueP1 = document.createElement('span');
+    valueP1.id = 'profit1Value';
+    valueP1.className = 'value-text';
+    rowProfit1.appendChild(labelP1);
+    rowProfit1.appendChild(valueP1);
 
     const rowProfit2 = document.createElement('div');
-    rowProfit2.className = 'row'; rowProfit2.id = 'profit2Row';
-    const labelP2 = document.createElement('span'); labelP2.className = 'label-text'; labelP2.textContent = 'Ha a 2-es nyer:';
-    const valueP2 = document.createElement('span'); valueP2.id = 'profit2Value'; valueP2.className = 'value-text';
-    rowProfit2.appendChild(labelP2); rowProfit2.appendChild(valueP2);
+    rowProfit2.className = 'row';
+    rowProfit2.id = 'profit2Row';
+    const labelP2 = document.createElement('span');
+    labelP2.className = 'label-text';
+    labelP2.textContent = 'Ha a 2-es nyer:';
+    const valueP2 = document.createElement('span');
+    valueP2.id = 'profit2Value';
+    valueP2.className = 'value-text';
+    rowProfit2.appendChild(labelP2);
+    rowProfit2.appendChild(valueP2);
 
     const rowGuaranteed = document.createElement('div');
     rowGuaranteed.className = 'row guaranteed-row';
     rowGuaranteed.style.borderTop = '1px solid #444c56';
     rowGuaranteed.style.paddingTop = '10px';
     rowGuaranteed.style.marginTop = '12px';
-    const labelG = document.createElement('span'); labelG.className = 'guaranteed-label'; labelG.textContent = 'Garantált eredmény:';
-    const valueG = document.createElement('span'); valueG.id = 'guaranteedValue'; valueG.className = 'guaranteed-value';
-    rowGuaranteed.appendChild(labelG); rowGuaranteed.appendChild(valueG);
+    const labelG = document.createElement('span');
+    labelG.className = 'guaranteed-label';
+    labelG.textContent = 'Garantált eredmény:';
+    const valueG = document.createElement('span');
+    valueG.id = 'guaranteedValue';
+    valueG.className = 'guaranteed-value';
+    rowGuaranteed.appendChild(labelG);
+    rowGuaranteed.appendChild(valueG);
 
-    // Opcionális tippek (változatlan)
-    const tip1Text = params.get('tip1'); const tip2Text = params.get('tip2');
+    // Tippek (opcionális)
+    const tip1Text = params.get('tip1');
+    const tip2Text = params.get('tip2');
+
     if (tip1Text) {
-      const tipRow1 = document.createElement('div'); tipRow1.className = 'row';
-      const tipLabel1 = document.createElement('span'); tipLabel1.className = 'tip-label'; tipLabel1.textContent = `${labelOdds1.textContent} – tipp:`;
-      const tipValue1 = document.createElement('span'); tipValue1.className = 'tip-value'; tipValue1.textContent = tip1Text;
-      tipRow1.appendChild(tipLabel1); tipRow1.appendChild(tipValue1); resultDiv.appendChild(tipRow1);
+      const tipRow1 = document.createElement('div');
+      tipRow1.className = 'row';
+      const tipLabel1 = document.createElement('span');
+      tipLabel1.className = 'tip-label';
+      tipLabel1.textContent = `${labelOdds1.textContent} – tipp:`;
+      const tipValue1 = document.createElement('span');
+      tipValue1.className = 'tip-value';
+      tipValue1.textContent = tip1Text;
+      tipRow1.appendChild(tipLabel1);
+      tipRow1.appendChild(tipValue1);
+      resultDiv.appendChild(tipRow1);
     }
+
     if (tip2Text) {
-      const tipRow2 = document.createElement('div'); tipRow2.className = 'row';
-      const tipLabel2 = document.createElement('span'); tipLabel2.className = 'tip-label'; tipLabel2.textContent = `${labelOdds2.textContent} – tipp:`;
-      const tipValue2 = document.createElement('span'); tipValue2.className = 'tip-value'; tipValue2.textContent = tip2Text;
-      tipRow2.appendChild(tipLabel2); tipRow2.appendChild(tipValue2); resultDiv.appendChild(tipRow2);
+      const tipRow2 = document.createElement('div');
+      tipRow2.className = 'row';
+      const tipLabel2 = document.createElement('span');
+      tipLabel2.className = 'tip-label';
+      tipLabel2.textContent = `${labelOdds2.textContent} – tipp:`;
+      const tipValue2 = document.createElement('span');
+      tipValue2.className = 'tip-value';
+      tipValue2.textContent = tip2Text;
+      tipRow2.appendChild(tipLabel2);
+      tipRow2.appendChild(tipValue2);
+      resultDiv.appendChild(tipRow2);
     }
 
     resultDiv.appendChild(row1);
