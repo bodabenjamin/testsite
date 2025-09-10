@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Arbitrázs Kalkulátor – Dark Mode</title>
   <style>
+  :root{
+    --green:#00ff88;
+    --green-2:#00e6a8;
+    --teal:#00ffc4;
+    --teal-2:#00bfa5;
+  }
+
   body {
     background: linear-gradient(135deg, #121212, #1e1e1e);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -42,19 +49,20 @@
     border: 3px solid rgba(255,255,255,0.07);
     box-shadow: 0 4px 14px #00ff8855; background: #fff0; display: block; margin: 0 auto;
   }
-  h1 { margin: 0 0 22px; font-weight: 700; color: #00ff88; font-size: 1.8rem; }
+  h1 { margin: 0 0 22px; font-weight: 700; color: var(--green); font-size: 1.8rem; }
 
   label { display: block; text-align: left; margin-top: 16px; margin-bottom: 8px; font-weight: 600; color: #b0b0b0; font-size: 1rem; }
 
-  input[type="number"], .value-input {
+  /* Odds mezők (változatlan) */
+  input[type="number"] {
     width: 100%; padding: 12px 14px; font-size: 1rem; border-radius: 10px;
     border: 2px solid #444c56; background-color: #1f262d; color: #e0e0e0;
-    outline-color: #00ff88; transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    outline-color: var(--green); transition: border-color 0.25s ease, box-shadow 0.25s ease;
     box-sizing: border-box; margin-bottom: 4px; box-shadow: 0 1px 6px #00ffc021 inset;
     font-variant-numeric: tabular-nums;
   }
   input[type="number"]::placeholder { color: #777c85; }
-  input[type="number"]:focus { border-color: #00ff88; box-shadow: 0 0 8px #00ff8844, 0 1px 6px #00ffc021 inset; }
+  input[type="number"]:focus { border-color: var(--green); box-shadow: 0 0 8px #00ff8844, 0 1px 6px #00ffc021 inset; }
 
   button, .book-link {
     margin-top: 24px; width: 100%; display: inline-block; text-decoration: none; text-align: center;
@@ -72,11 +80,17 @@
   }
   .book-link:hover, .book-link:focus { background: linear-gradient(90deg, #00bfa5, #00ffcc); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.9); }
 
+  /* Finom elválasztó a fogadóiroda gombok után (csak ha nem üres) */
+  #bookmakerButtons:not(:empty){ margin-top: 6px; margin-bottom: 12px; }
+  #bookmakerButtons:not(:empty)::after{
+    content:""; display:block; height:1px; margin:12px 0 4px 0;
+    background: linear-gradient(90deg, transparent, #00ffcc33, transparent);
+  }
+
   .result { margin-top: 28px; font-weight: 700; font-size: 1.15rem; line-height: 1.5; color: #e0e0e0; text-align: left; }
   .row { margin-top: 5px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
   .label-text { color: #b0b0b0; font-weight: 600; }
-  .value-input { text-align: right; }
-  .value-text { color: #00ff88; font-weight: 800; text-shadow: 0 0 6px #00ff8844; font-variant-numeric: tabular-nums; }
+  .value-text { color: var(--green); font-weight: 800; text-shadow: 0 0 6px #00ff8844; font-variant-numeric: tabular-nums; }
   .guaranteed-label { color: #a0ffb4; font-weight: 700; }
   .guaranteed-value { color: #a0ffb4; font-weight: 800; text-shadow: 0 0 8px #a0ffb455; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .tip-label { color: #ffd166; font-weight: 700; font-size: 1rem; }
@@ -91,13 +105,84 @@
   #stake, label[for="stake"] { display: none; }
 
   .input-with-copy { position: relative; width: 100%; }
-  .value-input.copyable { padding-right: 52px; }
+
+  /* ——— MINIMÁL TUNING: a két tét mező kinézete ——— */
+
+  /* 1) a „Odds X tét” címkék: akcent-csík + erősebb tipó */
+  #stake1Label, #stake2Label{
+    position: relative;
+    padding-left: 12px;
+    font-weight: 800;
+    letter-spacing: .01em;
+    color: #d8fbea; /* picit világosabb */
+    margin-bottom: 6px;
+  }
+  #stake1Label::before, #stake2Label::before{
+    content:""; position:absolute; left:0; top:50%;
+    width:4px; height:66%; transform: translateY(-50%);
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0,0,0,.25);
+  }
+  #stake1Label::before{ background: linear-gradient(180deg, var(--green), var(--green-2)); }
+  #stake2Label::before{ background: linear-gradient(180deg, var(--teal), var(--teal-2)); }
+
+  /* 2) a zöld bet-pill finomítása (F1/F2) */
+  .bet-pill{
+    align-self: flex-start;
+    display: inline-flex;
+    padding: 6px 10px 6px 28px; /* hely az ikonpöttynek */
+    border-radius: 9999px;
+    font-size: .85rem;
+    font-weight: 800;
+    background: linear-gradient(180deg, rgba(0,255,136,.07), rgba(0,255,136,.05));
+    border: 1px solid rgba(0,255,136,.22);
+    color: #c8ffdf;
+    box-shadow: 0 2px 8px rgba(0,255,136,.08), inset 0 1px 0 rgba(255,255,255,.05);
+    margin: 0 0 6px 0;
+    max-width: 100%;
+    line-height: 1.15;
+    word-break: break-word;
+    position: relative;
+  }
+  .bet-pill::before{
+    content:""; position:absolute; left:10px; top:50%;
+    width:10px; height:10px; border-radius:50%;
+    transform: translateY(-50%);
+    background: radial-gradient(circle at 30% 30%, var(--green), #0a855e);
+    box-shadow: 0 0 10px #00ff8890;
+  }
+
+  /* 3) tét input: diszkrét mélység + fókusz gyűrű, padding a copy-gombnak */
+  .value-input{
+    width: 100%;
+    padding: 12px 14px;
+    padding-right: 52px; /* hely a másoló gombnak */
+    font-size: 1rem; border-radius: 12px;
+    border: 1px solid #3a434c;
+    background: linear-gradient(180deg, #1e2630, #1b2128);
+    color: #e0e0e0;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    box-shadow: 0 1px 0 rgba(255,255,255,.02) inset, 0 1px 6px rgba(0,255,192,.13) inset;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    caret-color: var(--green);
+  }
+  .value-input:hover{
+    border-color:#4a5560;
+    background: linear-gradient(180deg, #202a34, #1b2128);
+  }
+  .value-input:focus{
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(0,255,136,.15), 0 1px 6px rgba(0,255,192,.18) inset;
+    background: linear-gradient(180deg, #1f2a33, #1b2128);
+  }
 
   button.copy-btn {
     position: absolute; right: 8px; top: 8px;
     width: auto; min-width: 36px; height: 32px; padding: 0 8px; margin: 0;
     display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 8px; border: 1px solid #00ff88;
+    border-radius: 8px; border: 1px solid var(--green);
     background: #173329; color: #bfffdc; font-size: 0.95rem; line-height: 1;
     box-shadow: 0 2px 6px rgba(0,0,0,0.25); z-index: 2; cursor: pointer;
     transition: transform .08s ease, box-shadow .2s ease;
@@ -110,7 +195,7 @@
     .calculator { padding: 25px 20px; width: 100%; box-shadow: none; border-radius: 12px; }
     h1 { font-size: 1.5rem; margin-bottom: 18px; }
     label { font-size: 0.9rem; margin-top: 14px; margin-bottom: 6px; }
-    input[type="number"], .value-input { font-size: 0.95rem; padding: 10px 12px; width: 100%; }
+    input[type="number"] { font-size: 0.95rem; padding: 10px 12px; width: 100%; }
     button, .book-link { font-size: 1.1rem; padding: 12px 0; }
     .result { font-size: 1rem; margin-top: 22px; }
     .row { margin-top: 5px; flex-wrap: wrap; }
@@ -118,7 +203,6 @@
     .logo-wrapper { margin-bottom: 14px; }
     button.copy-btn { right: 6px; top: 6px; height: 30px; min-width: 34px; }
 
-    /* Garantált sor – picit kisebb, egy sorban marad */
     .guaranteed-row .guaranteed-label,
     .guaranteed-row .guaranteed-value { font-size: .95rem; }
   }
@@ -192,14 +276,14 @@
   .popup-modal .txt{ color:#e0e0e0; line-height:1.35; margin-top:6px; }
   .modal .btns{ display:flex; gap:10px; justify-content:flex-end; margin-top:14px; flex-wrap:wrap; }
   .inline-link{
-    border:1px solid #00ff88; background:#173329; color:#bfffdc; border-radius:10px;
+    border:1px solid var(--green); background:#173329; color:#bfffdc; border-radius:10px;
     padding:10px 14px; text-decoration:none; font-weight:700;
   }
 
   /* Popup (desktop – toast a kalkulátor mellett, jobb felső) */
   .calc-toast{
     position: absolute;
-    top: 10px; left: 100%; margin-left: 12px; /* a kártya jobb széle mellé */
+    top: 10px; left: 100%; margin-left: 12px;
     width: 320px; max-width: 36vw;
     background: rgba(34,40,49,.98);
     border:1px solid rgba(255,255,255,.08);
@@ -219,25 +303,7 @@
     #settingsModal, #settingsBackdrop { display: none !important; }
   }
 
-  /* Bet leírás badge a tét mező fölött (F1/F2) */
-  .bet-pill{
-    align-self: flex-start;
-    display: inline-flex;
-    padding: 6px 10px;
-    border-radius: 9999px;
-    font-size: .85rem;
-    font-weight: 700;
-    background: rgba(0,255,136,.08);
-    border: 1px solid rgba(0,255,136,.22);
-    color: #c8ffdf;
-    box-shadow: 0 2px 8px rgba(0,255,136,.08);
-    margin: 0 0 6px 0;
-    max-width: 100%;
-    line-height: 1.15;
-    word-break: break-word;
-  }
-
-  /* Mérkőzés badge a cím alatt */
+  /* Mérkőzés badge a cím alatt (változatlan) */
   .match-wrap{
     display:flex; justify-content:center; align-items:center;
     margin: -6px 0 12px 0;
@@ -259,7 +325,7 @@
   }
   .match-pill .dot{
     width:8px; height:8px; border-radius:50%;
-    background:#00ffcc; box-shadow:0 0 8px #00ffcc88; flex:0 0 auto;
+    background:var(--teal); box-shadow:0 0 8px #00ffcc88; flex:0 0 auto;
   }
   </style>
 </head>
@@ -441,7 +507,7 @@
     try {
       applyURLParamsToFields();
 
-      // ⬇️ Hidden F1/F2/Meccs feltöltés case-insensitive módon
+      // Hidden F1/F2/Meccs feltöltés case-insensitive módon
       const f1Param = getCaseInsensitiveParam('F1');
       const f2Param = getCaseInsensitiveParam('F2');
       const meccsParam = getCaseInsensitiveParam('Meccs');
@@ -467,7 +533,7 @@
   // ==== Eszköz detektálás (mobil vs. desktop) ====
   function isMobileDevice(){
     const ua = navigator.userAgent || '';
-    const mobileUA = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(ua);
+       const mobileUA = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(ua);
     const touchCoarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     return mobileUA || touchCoarse;
   }
@@ -708,701 +774,4 @@
       s1HUF = Math.round(s1HUF / step1) * step1;
 
       s2HUF = (s1HUF * o1) / o2;
-      let step2 = stepForHUF(s2HUF);
-      s2HUF = Math.round(s2HUF / step2) * step2;
-    }
-    return [Math.max(0, Math.round(s1HUF)), Math.max(0, Math.round(s2HUF))];
-  }
-
-  function getDisplayStakesHUF(o1, o2){
-    const rawS1Disp = stake1Input ? Number(String(stake1Input.value).replace(',', '.')) || 0 : 0;
-    const rawS2Disp = stake2Input ? Number(String(stake2Input.value).replace(',', '.')) || 0 : 0;
-
-    const rawS1HUF = displayToHUF(rawS1Disp, stakeMode1);
-    const rawS2HUF = displayToHUF(rawS2Disp, stakeMode2);
-
-    if (isFocusedS1) return roundedPairFrom('s1', rawS1HUF, (rawS1HUF * o1) / o2, o1, o2);
-    if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, rawS2HUF, o1, o2); // ✅ bugfix: átadjuk a s2HUF-ot is
-    return roundedPairFrom('s1', rawS1HUF, rawS2HUF, o1, o2);
-  }
-
-  function commitRound(source){
-    if (!stake1Input || !stake2Input) return;
-    const o1 = parseFloat(odds1Field.value.replace(',', '.'));
-    const o2 = parseFloat(odds2Field.value.replace(',', '.'));
-
-    let s1HUF = displayToHUF(stake1Input.value, stakeMode1);
-    let s2HUF = displayToHUF(stake2Input.value, stakeMode2);
-
-    const [rs1HUF, rs2HUF] = roundedPairFrom(source, s1HUF, s2HUF, o1, o2);
-    isUpdating = true;
-    writeDisplayStake(stake1Input, rs1HUF, stakeMode1);
-    writeDisplayStake(stake2Input, rs2HUF, stakeMode2);
-    stakeField.value  = String(rs1HUF + rs2HUF);
-    isUpdating = false;
-    updateProfits(o1, o2);
-    updateStakeAltDisplays();
-    updateURLParams();
-    syncInputSteps();
-  }
-
-  function roundAll(){
-    if (!stake1Input || !stake2Input) return;
-    if (isFocusedS1) { isFocusedS1 = false; commitRound('s1'); return; }
-    if (isFocusedS2) { isFocusedS2 = false; commitRound('s2'); return; }
-    commitRound('s1');
-  }
-
-  function triggerCommitOnUserMotion(){
-    if (isFocusedS1) { isFocusedS1 = false; commitRound('s1'); return; }
-    if (isFocusedS2) { isFocusedS2 = false; commitRound('s2'); return; }
-  }
-
-  function scheduleStakeRound(source) {
-    if (source === 's1') {
-      if (stakeRoundTimer1) clearTimeout(stakeRoundTimer1);
-      stakeRoundTimer1 = setTimeout(() => commitRound('s1'), DEBOUNCE_MS);
-    } else {
-      if (stakeRoundTimer2) clearTimeout(stakeRoundTimer2);
-      stakeRoundTimer2 = setTimeout(() => commitRound('s2'), DEBOUNCE_MS);
-    }
-  }
-
-  function syncInputSteps(){
-    if (stake1Input) {
-      const currentHUF1 = displayToHUF(stake1Input.value, stakeMode1);
-      stake1Input.step = String(stepForMode(stakeMode1, currentHUF1));
-    }
-    if (stake2Input) {
-      const currentHUF2 = displayToHUF(stake2Input.value, stakeMode2);
-      stake2Input.step = String(stepForMode(stakeMode2, currentHUF2));
-    }
-  }
-
-  function writeDisplayStake(inputEl, hufValue, mode){
-    const disp = hufToDisplay(hufValue, mode);
-    inputEl.value = formatDisplay(disp, mode);
-  }
-
-  // ==== Élő frissítések ====
-  function onStake1Change() {
-    if (isUpdating) return;
-    const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
-    const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
-
-    let s1HUF = displayToHUF(stake1Input.value, stakeMode1);
-    if (!Number.isFinite(s1HUF) || s1HUF < 0) s1HUF = 0;
-
-    const s2PreviewHUF = (s1HUF * odds1) / odds2;
-    const [ , rs2HUF] = roundedPairFrom('s1', s1HUF, s2PreviewHUF, odds1, odds2);
-
-    isUpdating = true;
-    writeDisplayStake(stake2Input, rs2HUF, stakeMode2);
-    stakeField.value  = String(Math.round(s1HUF + rs2HUF));
-    isUpdating = false;
-
-    updateProfits(odds1, odds2);
-    updateStakeAltDisplays();
-    updateURLParams();
-  }
-
-  function onStake2Change() {
-    if (isUpdating) return;
-    const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
-    const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
-
-    let s2HUF = displayToHUF(stake2Input.value, stakeMode2);
-    if (!Number.isFinite(s2HUF) || s2HUF < 0) s2HUF = 0;
-
-    const s1PreviewHUF = (s2HUF * odds2) / odds1;
-    const [rs1HUF, ] = roundedPairFrom('s2', s1PreviewHUF, s2HUF, odds1, odds2);
-
-    isUpdating = true;
-    writeDisplayStake(stake1Input, rs1HUF, stakeMode1);
-    stakeField.value  = String(Math.round(rs1HUF + s2HUF));
-    isUpdating = false;
-
-    updateProfits(odds1, odds2);
-    updateStakeAltDisplays();
-    updateURLParams();
-  }
-
-  // ==== Profit és alternatív kijelzés ====
-  function updateProfits(odds1, odds2) {
-    if (!stake1Input || !stake2Input) return;
-
-    const [s1HUF, s2HUF] = getDisplayStakesHUF(odds1, odds2);
-    const totalInvested = s1HUF + s2HUF;
-
-    const profit1 = s1HUF * odds1 - totalInvested;
-    const profit2 = s2HUF * odds2 - totalInvested;
-    const guaranteed = Math.min(profit1, profit2);
-
-    const p1pct = totalInvested > 0 ? (profit1 / totalInvested) * 100 : 0;
-    const p2pct = totalInvested > 0 ? (profit2 / totalInvested) * 100 : 0;
-    const guaranteedPercent = totalInvested > 0 ? (guaranteed / totalInvested) * 100 : 0;
-
-    const nfFt = new Intl.NumberFormat('hu-HU');
-
-    const p1El = document.getElementById('profit1Value');
-    const p2El = document.getElementById('profit2Value');
-    const gv   = document.getElementById('guaranteedValue');
-
-    p1El.textContent = Number.isFinite(profit1) ? `${nfFt.format(Math.round(profit1))} Ft` : '- Ft';
-    p2El.textContent = Number.isFinite(profit2) ? `${nfFt.format(Math.round(profit2))} Ft` : '- Ft';
-    gv.textContent   = Number.isFinite(guaranteed)
-      ? `${nfFt.format(Math.round(guaranteed))} Ft (${guaranteedPercent.toFixed(2)}%)`
-      : '- Ft';
-
-    const LOW_BAND = 1;
-
-    [p1El, p2El, gv].forEach(el => {
-      el.classList.remove('is-positive','is-zero','is-negative');
-    });
-
-    if (Number.isFinite(profit1)) {
-      if (Math.abs(p1pct) <= LOW_BAND) p1El.classList.add('is-zero');
-      else if (profit1 > 0)            p1El.classList.add('is-positive');
-      else                             p1El.classList.add('is-negative');
-    }
-
-    if (Number.isFinite(profit2)) {
-      if (Math.abs(p2pct) <= LOW_BAND) p2El.classList.add('is-zero');
-      else if (profit2 > 0)            p2El.classList.add('is-positive');
-      else                             p2El.classList.add('is-negative');
-    }
-
-    if (Number.isFinite(guaranteed)) {
-      if (Math.abs(guaranteedPercent) <= LOW_BAND) gv.classList.add('is-zero');
-      else if (guaranteed > 0)                    gv.classList.add('is-positive');
-      else if (guaranteed < 0)                    gv.classList.add('is-negative');
-      else                                        gv.classList.add('is-zero');
-    }
-
-    stakeField.value = String(Math.round(totalInvested));
-  }
-
-  function updateStakeAltDisplays() {
-    if (!stake1Input || !stake2Input) return;
-    const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
-    const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
-    const [s1HUF, s2HUF] = getDisplayStakesHUF(odds1, odds2);
-
-    const s1AltEl = document.getElementById('stake1Alt');
-    const s2AltEl = document.getElementById('stake2Alt');
-
-    if (stakeMode1 === 'EUR') {
-      const ft1 = Number.isFinite(s1HUF) ? s1HUF : null;
-      s1AltEl.className = 'ft-value';
-      s1AltEl.textContent = ft1 != null ? `= ${ft1.toLocaleString('hu-HU')} Ft` : '';
-    } else {
-      const eur1 = Number.isFinite(s1HUF) ? roundToTenthEUR(s1HUF / eurRate) : null;
-      s1AltEl.className = 'eur-value';
-      s1AltEl.textContent = eur1 != null ? `= ${eur1.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : '';
-    }
-
-    if (stakeMode2 === 'EUR') {
-      const ft2 = Number.isFinite(s2HUF) ? s2HUF : null;
-      s2AltEl.className = 'ft-value';
-      s2AltEl.textContent = ft2 != null ? `= ${ft2.toLocaleString('hu-HU')} Ft` : '';
-    } else {
-      const eur2 = Number.isFinite(s2HUF) ? roundToTenthEUR(s2HUF / eurRate) : null;
-      s2AltEl.className = 'eur-value';
-      s2AltEl.textContent = eur2 != null ? `= ${eur2.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : '';
-    }
-
-    const s1Label = document.getElementById('stake1Label');
-    const s2Label = document.getElementById('stake2Label');
-    if (s1Label) s1Label.textContent = `${labelOdds1.textContent} tét (${stakeMode1 === 'EUR' ? 'EUR' : 'Ft'}):`;
-    if (s2Label) s2Label.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
-  }
-
-  function toggleStakeMode(which){
-    const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
-    const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
-
-    if (which === 1 && stake1Input) {
-      const currentHUF = displayToHUF(stake1Input.value, stakeMode1);
-      stakeMode1 = (stakeMode1 === 'EUR') ? 'HUF' : 'EUR';
-      writeDisplayStake(stake1Input, currentHUF, stakeMode1);
-    }
-    if (which === 2 && stake2Input) {
-      const currentHUF = displayToHUF(stake2Input.value, stakeMode2);
-      stakeMode2 = (stakeMode2 === 'EUR') ? 'HUF' : 'EUR';
-      writeDisplayStake(stake2Input, currentHUF, stakeMode2);
-    }
-
-    syncInputSteps();
-    updateProfits(odds1, odds2);
-    updateStakeAltDisplays();
-  }
-
-  // Betöltéskori azonnali kerekítés + mozgásfigyelők a commit-hoz
-  window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => roundAll(), 0);
-
-    window.addEventListener('wheel', () => triggerCommitOnUserMotion(), { passive: true });
-    window.addEventListener('scroll', () => triggerCommitOnUserMotion(), { passive: true });
-    window.addEventListener('touchmove', () => triggerCommitOnUserMotion(), { passive: true });
-
-    document.addEventListener('pointerdown', (e) => {
-      if (stake1Input && stake1Input.contains?.(e.target)) return;
-      if (stake2Input && stake2Input.contains?.(e.target)) return;
-      triggerCommitOnUserMotion();
-    }, { capture: true });
-  });
-
-  /* =========================
-     Beállítások MODÁL + Auto Open
-     (🔒 csak Desktopon engedélyezve)
-     ========================= */
-  const LS_KEY_AUTO_OPEN = 'autoOpenLinks';     // "true"/"false"
-  const SS_KEY_ALREADY_TRIED = 'autoOpen_tried';// session guard
-
-  (function initSettingsUI(){
-    // Ha nem desktop, tüntessük el és ne inicializáljuk
-    if (!isDesktopDevice()){
-      const btn = document.getElementById('settingsBtn');
-      const modal = document.getElementById('settingsModal');
-      const backdrop = document.getElementById('settingsBackdrop');
-      if (btn) btn.style.display = 'none';
-      if (modal) modal.remove();
-      if (backdrop) backdrop.remove();
-      return;
-    }
-
-    const btn = document.getElementById('settingsBtn');
-    const modal = document.getElementById('settingsModal');
-    const backdrop = document.getElementById('settingsBackdrop');
-    const closeX = document.getElementById('settingsClose');
-    const toggle = document.getElementById('autoOpenToggle');
-    const guideLinkEl = document.getElementById('guideLink');
-
-    const openSettings = ()=>{
-      backdrop.hidden = false; modal.hidden = false;
-      requestAnimationFrame(()=>{
-        backdrop.classList.add('show');
-        modal.classList.add('show');
-      });
-    };
-    const closeSettings = ()=>{
-      backdrop.classList.remove('show');
-      modal.classList.remove('show');
-      setTimeout(()=>{ backdrop.hidden = true; modal.hidden = true; }, 180);
-    };
-
-    if (guideLinkEl) guideLinkEl.href = GUIDE_URL;
-
-    const saved = (localStorage.getItem(LS_KEY_AUTO_OPEN) || 'false') === 'true';
-    toggle.checked = saved;
-
-    btn.addEventListener('click', openSettings);
-    closeX.addEventListener('click', closeSettings);
-    backdrop.addEventListener('click', closeSettings);
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeSettings(); });
-
-    toggle.addEventListener('change', ()=>{
-      localStorage.setItem(LS_KEY_AUTO_OPEN, toggle.checked ? 'true' : 'false');
-    });
-  })();
-
-  // Eszköz/nézet detektálás egyszerűsített
-  function isMobileView(){
-    return window.matchMedia('(max-width: 600px)').matches;
-  }
-
-  // Popup – mobilon középre modál, PC-n a kalkulátor mellett „toast”
-  function showPopupHint(){
-    if (isMobileView()){
-      // MOBIL MODÁL
-      const backdrop = document.createElement('div');
-      backdrop.className = 'modal-backdrop show';
-
-      const modal = document.createElement('div');
-      modal.className = 'modal popup-modal show';
-      modal.innerHTML = `
-        <div class="box">
-          <div class="hdr">
-            <div class="title">Automatikus nyitás blokkolva</div>
-          </div>
-          <div class="txt">
-            Ha nem működik az automatikus megnyitás: nézd meg az útmutatót a Discord <b>#fogadási-beállítások</b> csatornában.
-          </div>
-          <div class="btns">
-            <a class="inline-link" href="${GUIDE_URL}" target="_blank" rel="noopener">Útmutató</a>
-          </div>
-        </div>
-      `;
-
-      const removeAll = ()=>{ try{ backdrop.remove(); modal.remove(); }catch{} };
-      document.body.appendChild(backdrop);
-      document.body.appendChild(modal);
-      setTimeout(removeAll, POPUP_AUTO_DISMISS_MS);
-      [backdrop, modal].forEach(el=> el.addEventListener('click', removeAll));
-    } else {
-      // DESKTOP TOAST
-      const calc = document.querySelector('.calculator');
-      if (!calc) return;
-
-      const toast = document.createElement('div');
-      toast.className = 'calc-toast';
-      toast.innerHTML = `
-        <div class="title">Automatikus nyitás blokkolva</div>
-        <div class="txt">Ha nem működik az automatikus megnyitás: nézd meg az útmutatót a Discord <b>#fogadási-beállítások</b> csatornában.</div>
-        <div class="btns">
-          <a class="inline-link" href="${GUIDE_URL}" target="_blank" rel="noopener">Útmutató</a>
-        </div>
-      `;
-      calc.appendChild(toast);
-      requestAnimationFrame(()=> toast.classList.add('show'));
-
-      const removeToast = ()=>{ try{ toast.remove(); }catch{} };
-      setTimeout(removeToast, POPUP_AUTO_DISMISS_MS);
-      toast.addEventListener('click', removeToast);
-    }
-  }
-
-  // Összegyűjti a linkeket az URL alapján
-  function collectBookmakerUrls(){
-    const params = new URLSearchParams(window.location.search);
-    const keys = [params.get('odds1Book'), params.get('odds2Book')].filter(Boolean);
-    const seen = new Set();
-    const urls = [];
-
-    keys.forEach(kRaw=>{
-      const k = String(kRaw).toLowerCase();
-      const bm = bookmakers[k];
-      if (!bm || seen.has(k)) return;
-      const url = resolveBookmakerUrl(k, bm.url);
-      if (url) { urls.push(url); seen.add(k); }
-    });
-
-    return urls;
-  }
-
-  // Próbál automatikusan megnyitni (csak 1x/session)
-  function maybeAutoOpenLinks(){
-    const enabled = (localStorage.getItem(LS_KEY_AUTO_OPEN) || 'false') === 'true';
-    if (!enabled) return;
-    if (sessionStorage.getItem(SS_KEY_ALREADY_TRIED) === '1') return;
-
-    const urls = collectBookmakerUrls();
-    if (!urls.length) return;
-
-    sessionStorage.setItem(SS_KEY_ALREADY_TRIED, '1');
-
-    let openedCount = 0;
-    urls.forEach(u=>{
-      try{
-        const w = window.open(u, '_blank', 'noopener');
-        if (w) openedCount++;
-      }catch{}
-    });
-
-    if (openedCount === 0){
-      showPopupHint();
-    }
-  }
-
-  window.addEventListener('DOMContentLoaded', ()=>{
-    setTimeout(maybeAutoOpenLinks, 300);
-  });
-
-  // Hidden oddsBook mezők figyelése
-  window.addEventListener('DOMContentLoaded', () => {
-    ['odds1Book','odds2Book'].forEach(id=>{
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.addEventListener('input', () => {
-        autoSetCurrencyModesFromBooks();
-        showBookmakerButtons();
-        updateStakeAltDisplays();
-        const o1 = parseFloat(odds1Field.value.replace(',', '.'));
-        const o2 = parseFloat(odds2Field.value.replace(',', '.'));
-        updateProfits(o1, o2);
-      });
-    });
-  });
-
-  // ==== Szerkeszthető tétek felrajzolása + F1/F2 badge ====
-  function renderEditableStakes(initialStake1HUF, initialStake2HUF) {
-    resultDiv.innerHTML = '';
-
-    const params = new URLSearchParams(window.location.search);
-
-    // ODDS 1 blokk
-    const row1 = document.createElement('div');
-    row1.className = 'row';
-
-    const label1 = document.createElement('span');
-    label1.className = 'label-text';
-    label1.id = 'stake1Label';
-    label1.textContent = `${labelOdds1.textContent} tét (${stakeMode1 === 'EUR' ? 'EUR' : 'Ft'}):`;
-
-    const stake1Box = document.createElement('div');
-    stake1Box.style.display = 'flex';
-    stake1Box.style.flexDirection = 'column';
-    stake1Box.style.width = '100%';
-
-    // F1 badge (case-insensitive forrás + hidden fallback)
-    const f1Text = _getHiddenVal('F1') ?? getCaseInsensitiveParam('F1');
-    if (f1Text) {
-      const f1Badge = document.createElement('div');
-      f1Badge.className = 'bet-pill';
-      f1Badge.textContent = f1Text;
-      stake1Box.appendChild(f1Badge);
-    }
-
-    const inputWithCopy1 = document.createElement('div');
-    inputWithCopy1.className = 'input-with-copy';
-
-    const copyBtn1 = document.createElement('button');
-    copyBtn1.type = 'button';
-    copyBtn1.className = 'copy-btn';
-    copyBtn1.setAttribute('aria-label', 'Tét másolása');
-    copyBtn1.textContent = '📋';
-
-    stake1Input = document.createElement('input');
-    stake1Input.type  = 'number';
-    stake1Input.min   = '0';
-    stake1Input.step  = '1';
-    stake1Input.className = 'value-input copyable';
-    writeDisplayStake(stake1Input, initialStake1HUF, stakeMode1);
-
-    stake1Input.addEventListener('focus', () => { isFocusedS1 = true; });
-    stake1Input.addEventListener('input', () => {
-      onStake1Change();
-      scheduleStakeRound('s1');
-      syncInputSteps();
-    });
-    stake1Input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        isFocusedS1 = false;
-        commitRound('s1');
-        stake1Input.blur();
-      }
-    });
-    stake1Input.addEventListener('blur', () => {
-      isFocusedS1 = false;
-      commitRound('s1');
-    });
-    stake1Input.addEventListener('dblclick', async () => {
-      isFocusedS1 = false; commitRound('s1');
-      const ok = await copyToClipboard(stake1Input.value);
-      if (ok) showCopiedState(copyBtn1);
-    });
-    copyBtn1.addEventListener('click', async () => {
-      isFocusedS1 = false; commitRound('s1');
-      setTimeout(async () => {
-        const ok = await copyToClipboard(stake1Input.value);
-        if (ok) showCopiedState(copyBtn1);
-      }, 0);
-    });
-
-    inputWithCopy1.appendChild(stake1Input);
-    inputWithCopy1.appendChild(copyBtn1);
-
-    const stake1AltWrap = document.createElement('div');
-    stake1AltWrap.className = 'alt-wrap';
-
-    const stake1Alt = document.createElement('span');
-    stake1Alt.id = 'stake1Alt';
-    stake1Alt.className = stakeMode1 === 'EUR' ? 'ft-value' : 'eur-value';
-
-    const swapInline1 = document.createElement('img');
-    swapInline1.src = 'icon8-refresh.png';
-    swapInline1.alt = 'Deviza váltás';
-    swapInline1.title = 'Deviza váltás (HUF ⇄ EUR)';
-    swapInline1.className = 'swap-emoji-inline';
-    swapInline1.addEventListener('click', () => toggleStakeMode(1));
-
-    stake1AltWrap.appendChild(stake1Alt);
-    stake1AltWrap.appendChild(swapInline1);
-
-    stake1Box.appendChild(inputWithCopy1);
-    stake1Box.appendChild(stake1AltWrap);
-
-    row1.appendChild(label1);
-    row1.appendChild(stake1Box);
-
-    // ODDS 2 blokk
-    const row2 = document.createElement('div');
-    row2.className = 'row';
-
-    const label2 = document.createElement('span');
-    label2.className = 'label-text';
-    label2.id = 'stake2Label';
-    label2.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
-
-    const stake2Box = document.createElement('div');
-    stake2Box.style.display = 'flex';
-    stake2Box.style.flexDirection = 'column';
-    stake2Box.style.width = '100%';
-
-    // F2 badge (case-insensitive forrás + hidden fallback)
-    const f2Text = _getHiddenVal('F2') ?? getCaseInsensitiveParam('F2');
-    if (f2Text) {
-      const f2Badge = document.createElement('div');
-      f2Badge.className = 'bet-pill';
-      f2Badge.textContent = f2Text;
-      stake2Box.appendChild(f2Badge);
-    }
-
-    const inputWithCopy2 = document.createElement('div');
-    inputWithCopy2.className = 'input-with-copy';
-
-    const copyBtn2 = document.createElement('button');
-    copyBtn2.type = 'button';
-    copyBtn2.className = 'copy-btn';
-    copyBtn2.setAttribute('aria-label', 'Tét másolása');
-    copyBtn2.textContent = '📋';
-
-    stake2Input = document.createElement('input');
-    stake2Input.type  = 'number';
-    stake2Input.min   = '0';
-    stake2Input.step  = '1';
-    stake2Input.className = 'value-input copyable';
-    writeDisplayStake(stake2Input, initialStake2HUF, stakeMode2);
-
-    stake2Input.addEventListener('focus', () => { isFocusedS2 = true; });
-    stake2Input.addEventListener('input', () => {
-      onStake2Change();
-      scheduleStakeRound('s2');
-      syncInputSteps();
-    });
-    stake2Input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        isFocusedS2 = false;
-        commitRound('s2');
-        stake2Input.blur();
-      }
-    });
-    stake2Input.addEventListener('blur', () => {
-      isFocusedS2 = false;
-      commitRound('s2');
-    });
-    stake2Input.addEventListener('dblclick', async () => {
-      isFocusedS2 = false; commitRound('s2');
-      const ok = await copyToClipboard(stake2Input.value);
-      if (ok) showCopiedState(copyBtn2);
-    });
-    copyBtn2.addEventListener('click', async () => {
-      isFocusedS2 = false; commitRound('s2');
-      setTimeout(async () => {
-        const ok = await copyToClipboard(stake2Input.value);
-        if (ok) showCopiedState(copyBtn2);
-      }, 0);
-    });
-
-    inputWithCopy2.appendChild(stake2Input);
-    inputWithCopy2.appendChild(copyBtn2);
-
-    const stake2AltWrap = document.createElement('div');
-    stake2AltWrap.className = 'alt-wrap';
-
-    const stake2Alt = document.createElement('span');
-    stake2Alt.id = 'stake2Alt';
-    stake2Alt.className = stakeMode2 === 'EUR' ? 'ft-value' : 'eur-value';
-
-    const swapInline2 = document.createElement('img');
-    swapInline2.src = 'icon8-refresh.png';
-    swapInline2.alt = 'Deviza váltás';
-    swapInline2.title = 'Deviza váltás (HUF ⇄ EUR)';
-    swapInline2.className = 'swap-emoji-inline';
-    swapInline2.addEventListener('click', () => toggleStakeMode(2));
-
-    stake2AltWrap.appendChild(stake2Alt);
-    stake2AltWrap.appendChild(swapInline2);
-
-    stake2Box.appendChild(inputWithCopy2);
-    stake2Box.appendChild(stake2AltWrap);
-
-    row2.appendChild(label2);
-    row2.appendChild(stake2Box);
-
-    // Profit sorok
-    const rowProfit1 = document.createElement('div');
-    rowProfit1.className = 'row';
-    rowProfit1.id = 'profit1Row';
-    const labelP1 = document.createElement('span');
-    labelP1.className = 'label-text';
-    labelP1.textContent = 'Ha az 1-es nyer:';
-    const valueP1 = document.createElement('span');
-    valueP1.id = 'profit1Value';
-    valueP1.className = 'value-text';
-    rowProfit1.appendChild(labelP1);
-    rowProfit1.appendChild(valueP1);
-
-    const rowProfit2 = document.createElement('div');
-    rowProfit2.className = 'row';
-    rowProfit2.id = 'profit2Row';
-    const labelP2 = document.createElement('span');
-    labelP2.className = 'label-text';
-    labelP2.textContent = 'Ha a 2-es nyer:';
-    const valueP2 = document.createElement('span');
-    valueP2.id = 'profit2Value';
-    valueP2.className = 'value-text';
-    rowProfit2.appendChild(labelP2);
-    rowProfit2.appendChild(valueP2);
-
-    const rowGuaranteed = document.createElement('div');
-    rowGuaranteed.className = 'row guaranteed-row';
-    rowGuaranteed.style.borderTop = '1px solid #444c56';
-    rowGuaranteed.style.paddingTop = '10px';
-    rowGuaranteed.style.marginTop = '12px';
-    const labelG = document.createElement('span');
-    labelG.className = 'guaranteed-label';
-    labelG.textContent = 'Garantált eredmény:';
-    const valueG = document.createElement('span');
-    valueG.id = 'guaranteedValue';
-    valueG.className = 'guaranteed-value';
-    rowGuaranteed.appendChild(labelG);
-    rowGuaranteed.appendChild(valueG);
-
-    // Tippek (opcionális)
-    const tip1Text = params.get('tip1');
-    const tip2Text = params.get('tip2');
-
-    if (tip1Text) {
-      const tipRow1 = document.createElement('div');
-      tipRow1.className = 'row';
-      const tipLabel1 = document.createElement('span');
-      tipLabel1.className = 'tip-label';
-      tipLabel1.textContent = `${labelOdds1.textContent} – tipp:`;
-      const tipValue1 = document.createElement('span');
-      tipValue1.className = 'tip-value';
-      tipValue1.textContent = tip1Text;
-      tipRow1.appendChild(tipLabel1);
-      tipRow1.appendChild(tipValue1);
-      resultDiv.appendChild(tipRow1);
-    }
-
-    if (tip2Text) {
-      const tipRow2 = document.createElement('div');
-      tipRow2.className = 'row';
-      const tipLabel2 = document.createElement('span');
-      tipLabel2.className = 'tip-label';
-      tipLabel2.textContent = `${labelOdds2.textContent} – tipp:`;
-      const tipValue2 = document.createElement('span');
-      tipValue2.className = 'tip-value';
-      tipValue2.textContent = tip2Text;
-      tipRow2.appendChild(tipLabel2);
-      tipRow2.appendChild(tipValue2);
-      resultDiv.appendChild(tipRow2);
-    }
-
-    resultDiv.appendChild(row1);
-    resultDiv.appendChild(row2);
-    resultDiv.appendChild(rowProfit1);
-    resultDiv.appendChild(rowProfit2);
-    resultDiv.appendChild(rowGuaranteed);
-
-    const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
-    const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
-    updateProfits(odds1, odds2);
-    updateStakeAltDisplays();
-    syncInputSteps();
-  }
-  </script>
-</body>
-</html>
+      let step2 = step
