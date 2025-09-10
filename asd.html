@@ -70,19 +70,11 @@
   /* ===== FINOM TUNING: Odds cím ===== */
   .odds-title{
     color:#e8fbff; font-weight:800; letter-spacing:.015em;
-    display:flex; align-items:center; gap:8px; margin-bottom:8px;
+    display:flex; align-items:center; gap:8px; margin-bottom:6px;
   }
   .odds-title::before{
     content:""; width:8px; height:8px; border-radius:50%;
     background:#00e5ff; box-shadow:0 0 10px #00e5ff66;
-  }
-
-  /* >>> ÚJ: az Odds 1/2 egymás mellett desktopon <<< */
-  .odds-grid{ display:grid; gap:12px; margin-bottom: 6px; }
-  .odds-item{ display:flex; flex-direction:column; }
-  .odds-item .odds-title{ margin-top:0; } /* ne legyen extra felső margó a gridben */
-  @media (min-width: 560px){
-    .odds-grid{ grid-template-columns: 1fr 1fr; }
   }
 
   button, .book-link {
@@ -101,6 +93,7 @@
   }
   .book-link:hover, .book-link:focus { background: linear-gradient(90deg, #00bfa5, #00ffcc); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.9); }
 
+  /* Finom elválasztó a fogadóiroda gombok után (csak ha nem üres) */
   #bookmakerButtons:not(:empty){ margin-top: 6px; margin-bottom: 12px; }
   #bookmakerButtons:not(:empty)::after{
     content:""; display:block; height:1px; margin:12px 0 4px 0;
@@ -109,7 +102,18 @@
 
   .result { margin-top: 28px; font-weight: 700; font-size: 1.15rem; line-height: 1.5; color: #e0e0e0; text-align: left; }
   .row { margin-top: 5px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+
+  /* ===== TÉT CÍM FINOM TUNING (visszarakva) ===== */
   .label-text { color: #b0b0b0; font-weight: 600; }
+  .stake-title{
+    color:#e8ffee; font-weight: 800; letter-spacing:.015em;
+    display:flex; align-items:center; gap:8px;
+  }
+  .stake-title::before{
+    content:""; width:8px; height:8px; border-radius:50%;
+    background:#00ff88; box-shadow:0 0 10px #00ff8866;
+  }
+
   .value-input { text-align: right; }
   .value-text { color: #00ff88; font-weight: 800; text-shadow: 0 0 6px #00ff8844; font-variant-numeric: tabular-nums; }
   .guaranteed-label { color: #a0ffb4; font-weight: 700; }
@@ -153,6 +157,7 @@
     .logo { width: 50px; height: 50px; }
     .logo-wrapper { margin-bottom: 14px; }
     button.copy-btn { right: 6px; top: 6px; height: 30px; min-width: 34px; }
+
     .guaranteed-row .guaranteed-label,
     .guaranteed-row .guaranteed-value { font-size: .95rem; }
   }
@@ -233,7 +238,7 @@
     #settingsModal, #settingsBackdrop { display: none !important; }
   }
 
-  /* F1/F2 badge */
+  /* ===== F1/F2 pill ===== */
   .bet-pill{
     align-self: flex-start;
     display: inline-flex;
@@ -321,20 +326,12 @@
     <input type="text" id="F1" hidden>
     <input type="text" id="F2" hidden>
 
-    <!-- Mérkőzés pill (automatikusan megjelenik, ha van Meccs param) -->
-    <!-- (JS generálja, itt nincs markup) -->
+    <!-- Odds mezők: egymás alatt, hint nélkül -->
+    <label for="odds1" id="labelOdds1" class="odds-title">Odds 1</label>
+    <input type="number" id="odds1" step="0.01" min="1.01" placeholder="pl. 1,74" value="1.74" />
 
-    <!-- >>> ÚJ: Odds 1/2 egymás mellett (mobilon egymás alatt) + a hint ELTÁVOLÍTVA <<< -->
-    <div class="odds-grid">
-      <div class="odds-item">
-        <label for="odds1" id="labelOdds1" class="odds-title">Odds 1</label>
-        <input type="number" id="odds1" step="0.01" min="1.01" placeholder="pl. 1,74" value="1.74" />
-      </div>
-      <div class="odds-item">
-        <label for="odds2" id="labelOdds2" class="odds-title">Odds 2</label>
-        <input type="number" id="odds2" step="0.01" min="1.01" placeholder="pl. 2,63" value="2.63" />
-      </div>
-    </div>
+    <label for="odds2" id="labelOdds2" class="odds-title">Odds 2</label>
+    <input type="number" id="odds2" step="0.01" min="1.01" placeholder="pl. 2,63" value="2.63" />
 
     <!-- Teljes tét (rejtett, belső) -->
     <label for="stake">Teljes tét (Ft)</label>
@@ -453,7 +450,7 @@
     try {
       applyURLParamsToFields();
 
-      // Hidden F1/F2/Meccs feltöltés case-insensitive módon
+      // Hidden F1/F2/Meccs feltöltés case-insensitive
       const f1Param = getCaseInsensitiveParam('F1');
       const f2Param = getCaseInsensitiveParam('F2');
       const meccsParam = getCaseInsensitiveParam('Meccs');
@@ -476,7 +473,7 @@
     }
   });
 
-  // ==== Eszköz detektálás (mobil vs. desktop) ====
+  // Eszköz detektálás
   function isMobileDevice(){
     const ua = navigator.userAgent || '';
     const mobileUA = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(ua);
@@ -487,7 +484,7 @@
     return !isMobileDevice();
   }
 
-  // ==== Segédek ====
+  // Segédek
   function stepForHUF(valueHuf){
     const n = Number(valueHuf) || 0;
     return n < 10000 ? 50 : 100;
@@ -495,7 +492,6 @@
   function stepForMode(mode, currentHufValue){
     return mode === 'EUR' ? 0.1 : stepForHUF(currentHufValue);
   }
-
   function sanitizeUrl(u) {
     try {
       const url = new URL(u, window.location.origin);
@@ -615,7 +611,7 @@
     calculateArbitrage();
   }
 
-  // == Deviza ↔ HUF konverzió segédek ==
+  // == Deviza ↔ HUF konverzió ==
   function displayToHUF(displayValue, mode){
     const n = Number(String(displayValue).replace(',', '.')) || 0;
     return mode === 'EUR' ? n * eurRate : n;
@@ -945,7 +941,7 @@
     updateStakeAltDisplays();
   }
 
-  // Betöltéskori azonnali kerekítés + mozgásfigyelők a commit-hoz
+  // Betöltéskori kerekítés + mozgásfigyelők a commit-hoz
   window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => roundAll(), 0);
 
@@ -1122,18 +1118,16 @@
     });
   });
 
-  // ==== Szerkeszthető tétek felrajzolása + F1/F2 badge ====
+  // ==== Szerkeszthető tétek + F1/F2 badge ====
   function renderEditableStakes(initialStake1HUF, initialStake2HUF) {
     resultDiv.innerHTML = '';
-
-    const params = new URLSearchParams(window.location.search);
 
     // ODDS 1 blokk
     const row1 = document.createElement('div');
     row1.className = 'row';
 
     const label1 = document.createElement('span');
-    label1.className = 'label-text';
+    label1.className = 'label-text stake-title';
     label1.id = 'stake1Label';
     label1.textContent = `${labelOdds1.textContent} tét (${stakeMode1 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
@@ -1228,7 +1222,7 @@
     row2.className = 'row';
 
     const label2 = document.createElement('span');
-    label2.className = 'label-text';
+    label2.className = 'label-text stake-title';
     label2.id = 'stake2Label';
     label2.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
@@ -1356,38 +1350,6 @@
     valueG.className = 'guaranteed-value';
     rowGuaranteed.appendChild(labelG);
     rowGuaranteed.appendChild(valueG);
-
-    // Tippek (opcionális)
-    const tip1Text = params.get('tip1');
-    const tip2Text = params.get('tip2');
-
-    if (tip1Text) {
-      const tipRow1 = document.createElement('div');
-      tipRow1.className = 'row';
-      const tipLabel1 = document.createElement('span');
-      tipLabel1.className = 'tip-label';
-      tipLabel1.textContent = `${labelOdds1.textContent} – tipp:`;
-      const tipValue1 = document.createElement('span');
-      tipValue1.className = 'tip-value';
-      tipValue1.textContent = tip1Text;
-      tipRow1.appendChild(tipLabel1);
-      tipRow1.appendChild(tipValue1);
-      resultDiv.appendChild(tipRow1);
-    }
-
-    if (tip2Text) {
-      const tipRow2 = document.createElement('div');
-      tipRow2.className = 'row';
-      const tipLabel2 = document.createElement('span');
-      tipLabel2.className = 'tip-label';
-      tipLabel2.textContent = `${labelOdds2.textContent} – tipp:`;
-      const tipValue2 = document.createElement('span');
-      tipValue2.className = 'tip-value';
-      tipValue2.textContent = tip2Text;
-      tipRow2.appendChild(tipLabel2);
-      tipRow2.appendChild(tipValue2);
-      resultDiv.appendChild(tipRow2);
-    }
 
     resultDiv.appendChild(row1);
     resultDiv.appendChild(row2);
