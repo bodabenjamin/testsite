@@ -32,7 +32,7 @@
     transform: scale(0.94) translateY(30px);
     transition: opacity 0.6s cubic-bezier(.6,1.5,.7,1), transform 0.6s cubic-bezier(.6,1.5,.7,1);
     will-change: opacity, transform;
-    position: relative; /* a settings gomb & desktop toast miatt */
+    position: relative;
   }
   .calculator.visible { opacity: 1; transform: scale(1) translateY(0); }
 
@@ -46,14 +46,40 @@
 
   label { display: block; text-align: left; margin-top: 16px; margin-bottom: 8px; font-weight: 600; color: #b0b0b0; font-size: 1rem; }
 
+  /* ===== FINOM TUNING: minden number input (Odds + tét) ===== */
   input[type="number"], .value-input {
-    width: 100%; padding: 12px 14px; font-size: 1rem; border-radius: 10px;
-    border: 2px solid #444c56; background-color: #1f262d; color: #e0e0e0;
-    outline-color: #00ff88; transition: border-color 0.25s ease, box-shadow 0.25s ease;
-    box-sizing: border-box; margin-bottom: 4px; box-shadow: 0 1px 6px #00ffc021 inset;
+    width: 100%; padding: 12px 14px; font-size: 1rem; border-radius: 12px;
+    border: 2px solid #3e4650; background: linear-gradient(180deg,#20262e 0%, #1a2128 100%);
+    color: #e0e0e0; outline: none;
+    transition: border-color .2s ease, box-shadow .25s ease, background .2s ease;
+    box-sizing: border-box; margin-bottom: 4px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04), inset 0 0 0 9999px rgba(0,0,0,.02);
+    font-variant-numeric: tabular-nums;
   }
-  input[type="number"]::placeholder { color: #777c85; }
-  input[type="number"]:focus { border-color: #00ff88; box-shadow: 0 0 8px #00ff8844, 0 1px 6px #00ffc021 inset; }
+  input[type="number"]::placeholder { color: #7f8791; }
+  input[type="number"]:hover { border-color: #4a5360; }
+  input[type="number"]:focus {
+    border-color: #00ff88;
+    box-shadow:
+      0 0 0 3px rgba(0,255,136,.15),
+      0 0 22px rgba(0,255,136,.12),
+      inset 0 1px 0 rgba(255,255,255,.05);
+    background: linear-gradient(180deg,#222a33 0%, #1b232a 100%);
+  }
+
+  /* ===== FINOM TUNING: Odds cím + apró hint ===== */
+  .odds-title{
+    color:#e8fbff; font-weight:800; letter-spacing:.015em;
+    display:flex; align-items:center; gap:8px; margin-bottom:6px;
+  }
+  .odds-title::before{
+    content:""; width:8px; height:8px; border-radius:50%;
+    background:#00e5ff; box-shadow:0 0 10px #00e5ff66;
+  }
+  .odds-hint{
+    margin-top:4px; margin-bottom:8px; font-size:.83rem; line-height:1.2;
+    color:#a7b3bd; opacity:.85;
+  }
 
   button, .book-link {
     margin-top: 24px; width: 100%; display: inline-block; text-decoration: none; text-align: center;
@@ -71,19 +97,38 @@
   }
   .book-link:hover, .book-link:focus { background: linear-gradient(90deg, #00bfa5, #00ffcc); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.9); }
 
+  /* Finom elválasztó a fogadóiroda gombok után (csak ha nem üres) */
+  #bookmakerButtons:not(:empty){ margin-top: 6px; margin-bottom: 12px; }
+  #bookmakerButtons:not(:empty)::after{
+    content:""; display:block; height:1px; margin:12px 0 4px 0;
+    background: linear-gradient(90deg, transparent, #00ffcc33, transparent);
+  }
+
   .result { margin-top: 28px; font-weight: 700; font-size: 1.15rem; line-height: 1.5; color: #e0e0e0; text-align: left; }
   .row { margin-top: 5px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+
+  /* ===== TÉT CÍM FINOM TUNING (marad) ===== */
   .label-text { color: #b0b0b0; font-weight: 600; }
+  .stake-title{
+    color:#e8ffee; font-weight: 800; letter-spacing:.015em;
+    display:flex; align-items:center; gap:8px;
+  }
+  .stake-title::before{
+    content:""; width:8px; height:8px; border-radius:50%;
+    background:#00ff88; box-shadow:0 0 10px #00ff8866;
+  }
+
   .value-input { text-align: right; }
-  .value-text { color: #00ff88; font-weight: 800; text-shadow: 0 0 6px #00ff8844; }
+  .value-text { color: #00ff88; font-weight: 800; text-shadow: 0 0 6px #00ff8844; font-variant-numeric: tabular-nums; }
   .guaranteed-label { color: #a0ffb4; font-weight: 700; }
-  .guaranteed-value { color: #a0ffb4; font-weight: 800; text-shadow: 0 0 8px #a0ffb455; white-space: nowrap; }
+  .guaranteed-value { color: #a0ffb4; font-weight: 800; text-shadow: 0 0 8px #a0ffb455; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .tip-label { color: #ffd166; font-weight: 700; font-size: 1rem; }
   .tip-value { color: #ffd166; font-weight: 600; font-size: 0.95rem; line-height: 1.3; margin-bottom: 8px; text-align: left; }
-  .eur-value, .ft-value { font-size: 0.78em; color: #23ffd6; font-weight: 600; }
+  .eur-value, .ft-value { font-size: 0.78em; color: #23ffd6; font-weight: 600; font-variant-numeric: tabular-nums; }
 
-  .alt-wrap{ display:flex; justify-content:flex-end; align-items:center; gap:8px; margin-top: 2px; min-height: 1.2em; }
-  .swap-emoji-inline{ width: 1em; height: 1em; cursor: pointer; user-select: none; }
+  .alt-wrap{ display:flex; justify-content:flex-end; align-items:center; gap:8px; margin-top: 4px; min-height: 1.2em; }
+  .swap-emoji-inline{ width: 1em; height: 1em; cursor: pointer; user-select: none; opacity:.9; }
+  .swap-emoji-inline:hover{ opacity:1; }
 
   .error { color: #ff5252; margin-top: 14px; font-weight: 600; }
 
@@ -105,12 +150,6 @@
   button.copy-btn:active { transform: scale(0.98); }
   button.copy-btn.copied { border-color: #62ff9d; color: #62ff9d; }
 
-  /* >>> ÚJ: a két TÉT blokk egymás mellett desktopon <<< */
-  .stakes-grid{ display:grid; gap:12px; margin-top: 6px; }
-  @media (min-width: 560px){
-    .stakes-grid{ grid-template-columns: 1fr 1fr; }
-  }
-
   @media (max-width: 400px) {
     .calculator { padding: 25px 20px; width: 100%; box-shadow: none; border-radius: 12px; }
     h1 { font-size: 1.5rem; margin-bottom: 18px; }
@@ -123,7 +162,6 @@
     .logo-wrapper { margin-bottom: 14px; }
     button.copy-btn { right: 6px; top: 6px; height: 30px; min-width: 34px; }
 
-    /* Garantált sor – picit kisebb, egy sorban marad */
     .guaranteed-row .guaranteed-label,
     .guaranteed-row .guaranteed-value { font-size: .95rem; }
   }
@@ -132,34 +170,21 @@
   .is-zero     { color: #ffd166 !important; text-shadow: 0 0 8px #ffd16655 !important; }
   .is-negative { color: #ff6b6b !important; text-shadow: 0 0 8px #ff6b6b55 !important; }
 
-  /* === Középre felugró modál – általános (Settings + mobil popup) === */
-  .modal-backdrop{
-    position: fixed; inset: 0; background: rgba(0,0,0,.45);
-    opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 999;
-  }
+  /* === Modálok, popupok (változatlan) === */
+  .modal-backdrop{ position: fixed; inset: 0; background: rgba(0,0,0,.45); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 999; }
   .modal-backdrop.show{ opacity: 1; pointer-events: auto; }
-
-  .modal{
-    position: fixed; inset: 0; display: grid; place-items: center;
-    z-index: 1000; pointer-events: none;
-  }
+  .modal{ position: fixed; inset: 0; display: grid; place-items: center; z-index: 1000; pointer-events: none; }
   .modal .box{
-    width: min(92vw, 420px);
-    background: rgba(34,40,49,.98);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:16px; padding:16px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.45);
-    transform: translateY(10px) scale(.98); opacity: 0;
-    transition: transform .2s ease, opacity .2s ease;
+    width: min(92vw, 420px); background: rgba(34,40,49,.98); border:1px solid rgba(255,255,255,.08);
+    border-radius:16px; padding:16px; box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    transform: translateY(10px) scale(.98); opacity: 0; transition: transform .2s ease, opacity .2s ease;
   }
   .modal.show{ pointer-events: auto; }
   .modal.show .box{ transform: translateY(0) scale(1); opacity:1; }
-
   .modal .hdr{ display:flex; align-items:center; justify-content: space-between; gap:12px; margin-bottom:8px; }
   .modal .title{ font-weight:800; color:#e6ffe6; font-size:1.05rem; }
   .modal .close-x{ cursor:pointer; opacity:.85; user-select:none; font-size:1.1rem; padding:6px; }
 
-  /* Beállítások gomb (kép) a kártya jobb felső sarkában */
   .settings-btn{
     position:absolute; top:12px; right:12px;
     width:36px; height:36px; border-radius:8px; padding:0;
@@ -172,7 +197,6 @@
   .settings-btn:hover{ box-shadow: 0 6px 16px rgba(0,0,0,.35); }
   .settings-btn img{ width:22px; height:22px; display:block; }
 
-  /* Szebb iOS-szerű toggle */
   .setting-row{ display:flex; align-items:center; gap:12px; padding:10px 0; }
   .setting-row .lbl{ font-weight:700; color:#e6ffe6; }
   .setting-row .desc{ color:#aab; font-size:.92rem; line-height:1.25; margin-top:2px; }
@@ -192,19 +216,14 @@
   .toggle input:checked + .track{ background: linear-gradient(90deg,#00c853,#00e676); }
   .toggle input:checked + .track .knob{ transform: translateX(26px); background:#fff; }
 
-  /* Popup (mobil – középre felugró) */
   .popup-modal .title{ font-weight:800; color:#ffd166; }
   .popup-modal .txt{ color:#e0e0e0; line-height:1.35; margin-top:6px; }
   .modal .btns{ display:flex; gap:10px; justify-content:flex-end; margin-top:14px; flex-wrap:wrap; }
-  .inline-link{
-    border:1px solid #00ff88; background:#173329; color:#bfffdc; border-radius:10px;
-    padding:10px 14px; text-decoration:none; font-weight:700;
-  }
+  .inline-link{ border:1px solid #00ff88; background:#173329; color:#bfffdc; border-radius:10px; padding:10px 14px; text-decoration:none; font-weight:700; }
 
-  /* Popup (desktop – toast a kalkulátor mellett, jobb felső) */
   .calc-toast{
     position: absolute;
-    top: 10px; left: 100%; margin-left: 12px; /* a kártya jobb széle mellé */
+    top: 10px; left: 100%; margin-left: 12px;
     width: 320px; max-width: 36vw;
     background: rgba(34,40,49,.98);
     border:1px solid rgba(255,255,255,.08);
@@ -218,65 +237,55 @@
   .calc-toast .txt{ color:#e0e0e0; font-size:.95rem; line-height:1.3; margin-top:4px; }
   .calc-toast .btns{ display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
 
-  /* ⛔ Rejtés érintős/mobil eszközökön – safety net CSS */
   @media (hover:none) and (pointer:coarse), (max-width: 700px) {
     .settings-btn { display: none !important; }
     #settingsModal, #settingsBackdrop { display: none !important; }
   }
 
-  /* Bet leírás badge a tét mező fölött (F1/F2) */
+  /* ===== F1/F2 pill finom tuning ===== */
   .bet-pill{
     align-self: flex-start;
     display: inline-flex;
-    padding: 6px 10px;
-    border-radius: 9999px;
+    padding: 6px 12px 6px 14px;
+    border-radius: 12px;
     font-size: .85rem;
     font-weight: 700;
-    background: rgba(0,255,136,.08);
-    border: 1px solid rgba(0,255,136,.22);
+    background: linear-gradient(90deg, rgba(0,255,136,.10), rgba(0,255,136,.05));
+    border: 1px solid rgba(0,255,136,.28);
     color: #c8ffdf;
     box-shadow: 0 2px 8px rgba(0,255,136,.08);
-    margin: 0 0 6px 0;
+    margin: 0 0 8px 0;
     max-width: 100%;
     line-height: 1.15;
     word-break: break-word;
+    position: relative;
+  }
+  .bet-pill::before{
+    content:""; position:absolute; left:6px; top:6px; bottom:6px; width:3px;
+    border-radius:3px; background:#00ff88b3; box-shadow:0 0 10px #00ff8866;
   }
 
-  /* Mérkőzés badge a cím alatt */
-  .match-wrap{
-    display:flex; justify-content:center; align-items:center;
-    margin: -6px 0 12px 0;
-  }
+  /* Mérkőzés badge (változatlan) */
+  .match-wrap{ display:flex; justify-content:center; align-items:center; margin: -6px 0 12px 0; }
   .match-pill{
     display:inline-flex; align-items:center; gap:8px;
-    padding: 8px 12px;
-    border-radius: 9999px;
-    font-size: .92rem;
-    font-weight: 800;
-    background: rgba(0,255,204,.08);
-    border: 1px solid rgba(0,255,204,.22);
-    color: #d6fff6;
-    box-shadow: 0 2px 10px rgba(0,255,204,.08);
-    max-width: 100%;
-    line-height: 1.15;
-    word-break: break-word;
-    text-align: center;
+    padding: 8px 12px; border-radius: 9999px; font-size: .92rem; font-weight: 800;
+    background: rgba(0,255,204,.08); border: 1px solid rgba(0,255,204,.22);
+    color: #d6fff6; box-shadow: 0 2px 10px rgba(0,255,204,.08);
+    max-width: 100%; line-height: 1.15; word-break: break-word; text-align: center;
   }
-  .match-pill .dot{
-    width:8px; height:8px; border-radius:50%;
-    background:#00ffcc; box-shadow:0 0 8px #00ffcc88; flex:0 0 auto;
-  }
+  .match-pill .dot{ width:8px; height:8px; border-radius:50%; background:#00ffcc; box-shadow:0 0 8px #00ffcc88; flex:0 0 auto; }
   </style>
 </head>
 <body>
   <div class="calculator" role="main" aria-label="Arbitrázs kalkulátor">
 
-    <!-- === Beállítások gomb (PC/Laptop) – mobilon JS-ből és CSS-ből is rejtve === -->
+    <!-- Beállítások gomb -->
     <button class="settings-btn" id="settingsBtn" aria-label="Beállítások">
       <img src="123.png" alt="Beállítások">
     </button>
 
-    <!-- === Beállítások MODÁL + háttér === -->
+    <!-- Beállítások -->
     <div class="modal-backdrop" id="settingsBackdrop" hidden></div>
     <div class="modal" id="settingsModal" hidden>
       <div class="box">
@@ -307,7 +316,6 @@
         </div>
       </div>
     </div>
-    <!-- === /Beállítások === -->
 
     <div class="logo-wrapper">
       <img src="logo21.png" alt="Logó" class="logo" />
@@ -315,18 +323,23 @@
 
     <h1>Arbitrázs Kalkulátor</h1>
 
+    <!-- Hidden mezők -->
     <input type="text" id="odds1Book" hidden>
     <input type="text" id="odds2Book" hidden>
     <input type="text" id="Meccs" hidden>
     <input type="text" id="F1" hidden>
     <input type="text" id="F2" hidden>
 
-    <label for="odds1" id="labelOdds1">Odds 1</label>
-    <input type="number" id="odds1" step="0.01" min="1.01" placeholder="pl. 1,74" value="1.74" />
+    <!-- FINOMÍTOTT Odds blokkok -->
+    <label for="odds1" id="labelOdds1" class="odds-title">Odds 1</label>
+    <input type="number" id="odds1" step="0.01" min="1.01" placeholder="pl. 1,74" value="1.74" aria-describedby="odds1Hint" />
+    <div class="odds-hint" id="odds1Hint">Minimum 1.01 – tizedeshez pont vagy vessző is jó.</div>
 
-    <label for="odds2" id="labelOdds2">Odds 2</label>
-    <input type="number" id="odds2" step="0.01" min="1.01" placeholder="pl. 2,63" value="2.63" />
+    <label for="odds2" id="labelOdds2" class="odds-title">Odds 2</label>
+    <input type="number" id="odds2" step="0.01" min="1.01" placeholder="pl. 2,63" value="2.63" aria-describedby="odds2Hint" />
+    <div class="odds-hint" id="odds2Hint">Minimum 1.01 – tizedeshez pont vagy vessző is jó.</div>
 
+    <!-- Teljes tét (rejtett, belső) -->
     <label for="stake">Teljes tét (Ft)</label>
     <input type="number" id="stake" step="1" min="1" placeholder="pl. 10000" value="10000" />
 
@@ -350,9 +363,6 @@
 
   // ==== Alapbeállítások ====
   const eurRate = 393;
-  const paramsAtLoad = new URLSearchParams(window.location.search);
-
-  // FIX DISCORD ÚTMUTATÓ LINK + Popup autózár (7.5 mp)
   const GUIDE_URL = "https://discord.com/channels/1352389902033096724/1400422649502502953/1402328347480162324";
   const POPUP_AUTO_DISMISS_MS = 7500;
 
@@ -446,7 +456,7 @@
     try {
       applyURLParamsToFields();
 
-      // Hidden F1/F2/Meccs feltöltés case-insensitive módon
+      // ⬇️ Hidden F1/F2/Meccs feltöltés case-insensitive módon
       const f1Param = getCaseInsensitiveParam('F1');
       const f2Param = getCaseInsensitiveParam('F2');
       const meccsParam = getCaseInsensitiveParam('Meccs');
@@ -898,22 +908,18 @@
 
     if (stakeMode1 === 'EUR') {
       const ft1 = Number.isFinite(s1HUF) ? s1HUF : null;
-      s1AltEl.className = 'ft-value';
-      s1AltEl.textContent = ft1 != null ? `= ${ft1.toLocaleString('hu-HU')} Ft` : '';
+      if (s1AltEl){ s1AltEl.className = 'ft-value'; s1AltEl.textContent = ft1 != null ? `= ${ft1.toLocaleString('hu-HU')} Ft` : ''; }
     } else {
       const eur1 = Number.isFinite(s1HUF) ? roundToTenthEUR(s1HUF / eurRate) : null;
-      s1AltEl.className = 'eur-value';
-      s1AltEl.textContent = eur1 != null ? `= ${eur1.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : '';
+      if (s1AltEl){ s1AltEl.className = 'eur-value'; s1AltEl.textContent = eur1 != null ? `= ${eur1.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : ''; }
     }
 
     if (stakeMode2 === 'EUR') {
       const ft2 = Number.isFinite(s2HUF) ? s2HUF : null;
-      s2AltEl.className = 'ft-value';
-      s2AltEl.textContent = ft2 != null ? `= ${ft2.toLocaleString('hu-HU')} Ft` : '';
+      if (s2AltEl){ s2AltEl.className = 'ft-value'; s2AltEl.textContent = ft2 != null ? `= ${ft2.toLocaleString('hu-HU')} Ft` : ''; }
     } else {
       const eur2 = Number.isFinite(s2HUF) ? roundToTenthEUR(s2HUF / eurRate) : null;
-      s2AltEl.className = 'eur-value';
-      s2AltEl.textContent = eur2 != null ? `= ${eur2.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : '';
+      if (s2AltEl){ s2AltEl.className = 'eur-value'; s2AltEl.textContent = eur2 != null ? `= ${eur2.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : ''; }
     }
 
     const s1Label = document.getElementById('stake1Label');
@@ -958,14 +964,12 @@
   });
 
   /* =========================
-     Beállítások MODÁL + Auto Open
-     (🔒 csak Desktopon engedélyezve)
+     Beállítások MODÁL + Auto Open (csak Desktop)
      ========================= */
-  const LS_KEY_AUTO_OPEN = 'autoOpenLinks';     // "true"/"false"
-  const SS_KEY_ALREADY_TRIED = 'autoOpen_tried';// session guard
+  const LS_KEY_AUTO_OPEN = 'autoOpenLinks';
+  const SS_KEY_ALREADY_TRIED = 'autoOpen_tried';
 
   (function initSettingsUI(){
-    // Ha nem desktop, tüntessük el és ne inicializáljuk
     if (!isDesktopDevice()){
       const btn = document.getElementById('settingsBtn');
       const modal = document.getElementById('settingsModal');
@@ -985,14 +989,10 @@
 
     const openSettings = ()=>{
       backdrop.hidden = false; modal.hidden = false;
-      requestAnimationFrame(()=>{
-        backdrop.classList.add('show');
-        modal.classList.add('show');
-      });
+      requestAnimationFrame(()=>{ backdrop.classList.add('show'); modal.classList.add('show'); });
     };
     const closeSettings = ()=>{
-      backdrop.classList.remove('show');
-      modal.classList.remove('show');
+      backdrop.classList.remove('show'); modal.classList.remove('show');
       setTimeout(()=>{ backdrop.hidden = true; modal.hidden = true; }, 180);
     };
 
@@ -1006,9 +1006,7 @@
     backdrop.addEventListener('click', closeSettings);
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeSettings(); });
 
-    toggle.addEventListener('change', ()=>{
-      localStorage.setItem(LS_KEY_AUTO_OPEN, toggle.checked ? 'true' : 'false');
-    });
+    toggle.addEventListener('change', ()=>{ localStorage.setItem(LS_KEY_AUTO_OPEN, toggle.checked ? 'true' : 'false'); });
   })();
 
   // Eszköz/nézet detektálás egyszerűsített
@@ -1016,10 +1014,9 @@
     return window.matchMedia('(max-width: 600px)').matches;
   }
 
-  // Popup – mobilon középre modál, PC-n a kalkulátor mellett „toast”
+  // Popup – mobilon középre modál, PC-n toast
   function showPopupHint(){
     if (isMobileView()){
-      // MOBIL MODÁL
       const backdrop = document.createElement('div');
       backdrop.className = 'modal-backdrop show';
 
@@ -1045,7 +1042,6 @@
       setTimeout(removeAll, POPUP_AUTO_DISMISS_MS);
       [backdrop, modal].forEach(el=> el.addEventListener('click', removeAll));
     } else {
-      // DESKTOP TOAST
       const calc = document.querySelector('.calculator');
       if (!calc) return;
 
@@ -1135,16 +1131,12 @@
 
     const params = new URLSearchParams(window.location.search);
 
-    // GRID konténer a két tét-blokkhoz
-    const stakesGrid = document.createElement('div');
-    stakesGrid.className = 'stakes-grid';
-
     // ODDS 1 blokk
     const row1 = document.createElement('div');
     row1.className = 'row';
 
     const label1 = document.createElement('span');
-    label1.className = 'label-text';
+    label1.className = 'label-text stake-title';
     label1.id = 'stake1Label';
     label1.textContent = `${labelOdds1.textContent} tét (${stakeMode1 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
@@ -1153,7 +1145,7 @@
     stake1Box.style.flexDirection = 'column';
     stake1Box.style.width = '100%';
 
-    // F1 badge (case-insensitive forrás + hidden fallback)
+    // F1 badge
     const f1Text = _getHiddenVal('F1') ?? getCaseInsensitiveParam('F1');
     if (f1Text) {
       const f1Badge = document.createElement('div');
@@ -1239,7 +1231,7 @@
     row2.className = 'row';
 
     const label2 = document.createElement('span');
-    label2.className = 'label-text';
+    label2.className = 'label-text stake-title';
     label2.id = 'stake2Label';
     label2.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
@@ -1248,7 +1240,7 @@
     stake2Box.style.flexDirection = 'column';
     stake2Box.style.width = '100%';
 
-    // F2 badge (case-insensitive forrás + hidden fallback)
+    // F2 badge
     const f2Text = _getHiddenVal('F2') ?? getCaseInsensitiveParam('F2');
     if (f2Text) {
       const f2Badge = document.createElement('div');
@@ -1329,10 +1321,6 @@
     row2.appendChild(label2);
     row2.appendChild(stake2Box);
 
-    // A két blokkot a GRID-be tesszük
-    stakesGrid.appendChild(row1);
-    stakesGrid.appendChild(row2);
-
     // Profit sorok
     const rowProfit1 = document.createElement('div');
     rowProfit1.className = 'row';
@@ -1372,7 +1360,7 @@
     rowGuaranteed.appendChild(labelG);
     rowGuaranteed.appendChild(valueG);
 
-    // Tippek (opcionális, URL paramokból)
+    // Tippek (opcionális)
     const tip1Text = params.get('tip1');
     const tip2Text = params.get('tip2');
 
@@ -1404,8 +1392,8 @@
       resultDiv.appendChild(tipRow2);
     }
 
-    // Render sorrend
-    resultDiv.appendChild(stakesGrid);
+    resultDiv.appendChild(row1);
+    resultDiv.appendChild(row2);
     resultDiv.appendChild(rowProfit1);
     resultDiv.appendChild(rowProfit2);
     resultDiv.appendChild(rowGuaranteed);
