@@ -357,6 +357,7 @@
 
   // ==== Alapbeállítások ====
   const eurRate = 393;
+  const ronRate = 80; // 1 RON ≈ 80 HUF
   const GUIDE_URL = "https://discord.com/channels/1352389902033096724/1400422649502502953/1402328347480162324";
   const POPUP_AUTO_DISMISS_MS = 7500;
 
@@ -372,7 +373,13 @@
     ivibet:     { label: "Ivibet",     url: "https://ivibet.com/" },
     "blaze.bet.br": { label: "Blaze",  url: "https://blaze.com/en/" },
     betwinner:  { label: "Betwinner",  url: "https://betwinner.com/hu" },
-    funbet:     { label: "Funbet",     url: "https://funbet.com/hu" }
+    funbet:     { label: "Funbet",     url: "https://funbet.com/hu" },
+    favbet:     { label: "Favbet",     url: "https://www.favbet.ro/ro/" },
+    betano:     { label: "Betano",     url: "https://ro.betano.com/" },
+    superbet:   { label: "Superbet",     url: "https://superbet.ro/" },
+    fortuna:    { label: "Fortuna",     url: "https://efortuna.ro/" },
+    unibet:     { label: "Unibet",     url: "https://funbet.com/hu" }
+
   };
 
   // --- Case-insensitive URL param olvasás ---
@@ -421,7 +428,7 @@
     if (pillText) pillText.textContent = matchName;
   }
 
-  // Deviza módok a tét mezőkhöz: 'HUF' vagy 'EUR'
+  // Deviza módok a tét mezőkhöz: 'HUF' vagy 'EUR' vagy 'RON'
   let stakeMode1 = 'HUF';
   let stakeMode2 = 'HUF';
 
@@ -490,7 +497,9 @@
     return n < 10000 ? 50 : 100;
   }
   function stepForMode(mode, currentHufValue){
-    return mode === 'EUR' ? 0.1 : stepForHUF(currentHufValue);
+    if (mode === 'EUR') return 0.1;
+    if (mode === 'RON') return 1;
+    return stepForHUF(currentHufValue);
   }
   function sanitizeUrl(u) {
     try {
@@ -532,10 +541,20 @@
 
   function autoSetCurrencyModesFromBooks(){
      const eurBooks = new Set(['betinasia','blaze','blaze.bet.br']);
+     const ronBooks = new Set(['favbet','fortuna','unibet','superbet','betano']);
+
      const b1 = _getBookVal('odds1Book');
      const b2 = _getBookVal('odds2Book');
-     stakeMode1 = (b1 && eurBooks.has(String(b1).toLowerCase())) ? 'EUR' : 'HUF';
-     stakeMode2 = (b2 && eurBooks.has(String(b2).toLowerCase())) ? 'EUR' : 'HUF';
+     const b1l = b1 ? String(b1).toLowerCase() : null;
+     const b2l = b2 ? String(b2).toLowerCase() : null;
+
+     stakeMode1 = (b1l && ronBooks.has(b1l)) ? 'RON'
+               : (b1l && eurBooks.has(b1l)) ? 'EUR'
+               : 'HUF';
+
+     stakeMode2 = (b2l && ronBooks.has(b2l)) ? 'RON'
+               : (b2l && eurBooks.has(b2l)) ? 'EUR'
+               : 'HUF';
   }
 
   function showBookmakerButtons() {
@@ -614,15 +633,19 @@
   // == Deviza ↔ HUF konverzió ==
   function displayToHUF(displayValue, mode){
     const n = Number(String(displayValue).replace(',', '.')) || 0;
-    return mode === 'EUR' ? n * eurRate : n;
+    if (mode === 'EUR') return n * eurRate;
+    if (mode === 'RON') return n * ronRate;
+    return n;
   }
   function hufToDisplay(hufValue, mode){
     const n = Number(hufValue) || 0;
-    return mode === 'EUR' ? (n / eurRate) : n;
+    if (mode === 'EUR') return (n / eurRate);
+    if (mode === 'RON') return (n / ronRate);
+    return n;
   }
   function formatDisplay(n, mode){
     if (mode === 'EUR') return (Math.round(n * 10) / 10).toFixed(1);
-    return Math.round(n).toString();
+    return Math.round(n).toString(); // HUF és RON: egész
   }
   function roundToTenthEUR(x) {
     const n = Number(x);
@@ -704,19 +727,24 @@
 
   // ==== Dinamikus kerekítés + léptetés (HUF térben) ====
   function roundedPairFrom(source, s1HUF, s2HUF, o1, o2){
+    const stepForHufOrRon = (hufValue, mode) => {
+      if (mode === 'RON') return ronRate; // egész RON HUF-térben
+      return stepForHUF(hufValue);
+    };
+
     if (source === 's2') {
-      let step2 = stepForHUF(s2HUF);
+      let step2 = stepForHufOrRon(s2HUF, stakeMode2);
       s2HUF = Math.round(s2HUF / step2) * step2;
 
       s1HUF = (s2HUF * o2) / o1;
-      let step1 = stepForHUF(s1HUF);
+      let step1 = stepForHufOrRon(s1HUF, stakeMode1);
       s1HUF = Math.round(s1HUF / step1) * step1;
     } else {
-      let step1 = stepForHUF(s1HUF);
+      let step1 = stepForHufOrRon(s1HUF, stakeMode1);
       s1HUF = Math.round(s1HUF / step1) * step1;
 
       s2HUF = (s1HUF * o1) / o2;
-      let step2 = stepForHUF(s2HUF);
+      let step2 = stepForHufOrRon(s2HUF, stakeMode2);
       s2HUF = Math.round(s2HUF / step2) * step2;
     }
     return [Math.max(0, Math.round(s1HUF)), Math.max(0, Math.round(s2HUF))];
@@ -902,12 +930,18 @@
     if (stakeMode1 === 'EUR') {
       const ft1 = Number.isFinite(s1HUF) ? s1HUF : null;
       if (s1AltEl){ s1AltEl.className = 'ft-value'; s1AltEl.textContent = ft1 != null ? `= ${ft1.toLocaleString('hu-HU')} Ft` : ''; }
+    } else if (stakeMode1 === 'RON') {
+      const ft1 = Number.isFinite(s1HUF) ? s1HUF : null;
+      if (s1AltEl){ s1AltEl.className = 'ft-value'; s1AltEl.textContent = ft1 != null ? `= ${ft1.toLocaleString('hu-HU')} Ft` : ''; }
     } else {
       const eur1 = Number.isFinite(s1HUF) ? roundToTenthEUR(s1HUF / eurRate) : null;
       if (s1AltEl){ s1AltEl.className = 'eur-value'; s1AltEl.textContent = eur1 != null ? `= ${eur1.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR` : ''; }
     }
 
     if (stakeMode2 === 'EUR') {
+      const ft2 = Number.isFinite(s2HUF) ? s2HUF : null;
+      if (s2AltEl){ s2AltEl.className = 'ft-value'; s2AltEl.textContent = ft2 != null ? `= ${ft2.toLocaleString('hu-HU')} Ft` : ''; }
+    } else if (stakeMode2 === 'RON') {
       const ft2 = Number.isFinite(s2HUF) ? s2HUF : null;
       if (s2AltEl){ s2AltEl.className = 'ft-value'; s2AltEl.textContent = ft2 != null ? `= ${ft2.toLocaleString('hu-HU')} Ft` : ''; }
     } else {
@@ -917,8 +951,9 @@
 
     const s1Label = document.getElementById('stake1Label');
     const s2Label = document.getElementById('stake2Label');
-    if (s1Label) s1Label.textContent = `${labelOdds1.textContent} tét (${stakeMode1 === 'EUR' ? 'EUR' : 'Ft'}):`;
-    if (s2Label) s2Label.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
+    const labelFor = m => (m === 'EUR' ? 'EUR' : (m === 'RON' ? 'RON' : 'Ft'));
+    if (s1Label) s1Label.textContent = `${labelOdds1.textContent} tét (${labelFor(stakeMode1)}):`;
+    if (s2Label) s2Label.textContent = `${labelOdds2.textContent} tét (${labelFor(stakeMode2)}):`;
   }
 
   function toggleStakeMode(which){
