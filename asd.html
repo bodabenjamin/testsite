@@ -379,7 +379,6 @@
     superbet:   { label: "Superbet",     url: "https://superbet.ro/" },
     fortuna:    { label: "Fortuna",     url: "https://efortuna.ro/" },
     unibet:     { label: "Unibet",     url: "https://funbet.com/hu" }
-
   };
 
   // --- Case-insensitive URL param olvasás ---
@@ -880,15 +879,26 @@
 
     const nfFt = new Intl.NumberFormat('hu-HU');
 
+    // === ÚJ: RON-os kijelzés, ha mindkét tét RON módban van ===
+    const useRON = (stakeMode1 === 'RON' && stakeMode2 === 'RON');
+    const formatProfit = (amtHUF) => {
+      if (!Number.isFinite(amtHUF)) return useRON ? '- RON' : '- Ft';
+      if (useRON) {
+        const ron = Math.round(amtHUF / ronRate);
+        return `${ron.toLocaleString('hu-HU')} RON`;
+      }
+      return `${nfFt.format(Math.round(amtHUF))} Ft`;
+    };
+
     const p1El = document.getElementById('profit1Value');
     const p2El = document.getElementById('profit2Value');
     const gv   = document.getElementById('guaranteedValue');
 
-    p1El.textContent = Number.isFinite(profit1) ? `${nfFt.format(Math.round(profit1))} Ft` : '- Ft';
-    p2El.textContent = Number.isFinite(profit2) ? `${nfFt.format(Math.round(profit2))} Ft` : '- Ft';
+    p1El.textContent = formatProfit(profit1);
+    p2El.textContent = formatProfit(profit2);
     gv.textContent   = Number.isFinite(guaranteed)
-      ? `${nfFt.format(Math.round(guaranteed))} Ft (${guaranteedPercent.toFixed(2)}%)`
-      : '- Ft';
+      ? `${formatProfit(guaranteed)} (${guaranteedPercent.toFixed(2)}%)`
+      : (useRON ? '- RON' : '- Ft');
 
     const LOW_BAND = 1;
 
