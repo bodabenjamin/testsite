@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Adatvédelmi irányelvek / Privacy Policy – Arbify Mini Kalkulátor</title>
+  <meta name="robots" content="noindex,follow" />
+  <style>
+    :root{
+      --bg:#0f1418; --card:#141b21; --fg:#e9eef2; --muted:#9fb3c8; --brand:#00d48a; --border:#21303a;
+      --link:#7dd3fc;
+    }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;}
+    .wrap{max-width:900px;margin:32px auto;padding:0 16px 48px;}
+    .header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    h1{font-size:1.8rem;margin:0 0 8px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;box-shadow:0 4px 16px rgba(0,0,0,.15);}
+    .muted{color:var(--muted);}
+    .pill{display:inline-block;padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:#0d151a;}
+    .lang-toggle{display:flex;gap:8px;align-items:center;}
+    button.toggle{cursor:pointer;border:1px solid var(--border);background:#0d151a;color:var(--fg);padding:8px 12px;border-radius:10px;font-weight:700}
+    button.toggle[aria-pressed="true"]{outline:2px solid var(--brand);}
+    a{color:var(--link);text-decoration:none} a:hover{text-decoration:underline}
+    h2{margin:0 0 8px;font-size:1.25rem}
+    ul{margin:8px 0 0 20px}
+    code{background:#0b1115;border:1px solid var(--border);padding:2px 6px;border-radius:8px}
+    .foot{margin-top:28px;font-size:.95rem}
+    .brand{color:var(--brand);font-weight:800}
+    .lang{display:none}
+    .lang.active{display:block}
+    @media print{
+      .lang-toggle{display:none}
+      body{background:#fff;color:#000}
+      .card{border-color:#ccc;background:#fff;box-shadow:none}
+      a{color:#06c}
+    }
+  </style>
+  <script>
+    function setLang(l){
+      document.querySelectorAll(".lang").forEach(n=>n.classList.remove("active"));
+      document.getElementById("lang-"+l).classList.add("active");
+      document.querySelectorAll("button.toggle").forEach(b=>b.setAttribute("aria-pressed", b.dataset.lang===l ? "true" : "false"));
+      document.documentElement.lang = l === "hu" ? "hu" : "en";
+      try{ localStorage.setItem("pp:lang", l); }catch{}
+    }
+    document.addEventListener("DOMContentLoaded", ()=>{
+      const saved = (localStorage.getItem("pp:lang")||"hu");
+      setLang(saved);
+    });
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <h1>Adatvédelmi irányelvek / Privacy Policy</h1>
+        <div class="muted">Arbify – Mini Kalkulátor (Chrome-bővítmény) • <span class="brand">sportfogadasedge.hu</span></div>
+      </div>
+      <div class="lang-toggle" role="group" aria-label="Nyelvváltó / Language">
+        <button class="toggle" data-lang="hu" aria-pressed="true" onclick="setLang('hu')">Magyar</button>
+        <button class="toggle" data-lang="en" aria-pressed="false" onclick="setLang('en')">English</button>
+      </div>
+    </div>
+
+    <!-- MAGYAR -->
+    <section id="lang-hu" class="lang active" lang="hu">
+      <div class="card">
+        <p><strong>Hatálybalépés dátuma:</strong> 2025-09-18</p>
+        <p>Ez az adatkezelési tájékoztató az <span class="brand">Arbify – Mini Kalkulátor</span> Chrome-bővítményre és a bővítményhez kapcsolódó, saját tulajdonú webhelyre, a <span class="brand">sportfogadasedge.hu</span>-ra vonatkozik (a továbbiakban együtt: „Szolgáltatás”). A webhely és a bővítmény üzemeltetője: <strong>Arbify – Sportfogadás Edge</strong> (a továbbiakban: „Üzemeltető”).</p>
+      </div>
+
+      <div class="card">
+        <h2>Összefoglaló</h2>
+        <ul>
+          <li><strong>Nem gyűjtünk személyes adatot</strong> a felhasználókról a bővítmény működése során.</li>
+          <li>A bővítmény kizárólag a <strong>sportfogadasedge.hu</strong> (saját tulajdonú) domain nyilvános webhelytartalmához fér hozzá az arbitrázs kalkulátor megjelenítéséhez és az odds adatok feldolgozásához.</li>
+          <li>Nem továbbítunk adatot harmadik félnek, nem végzünk profilozást vagy hirdetési célú követést.</li>
+          <li>A beállításokat kizárólag <strong>helyben</strong> tároljuk: <code>chrome.storage.local</code> és <code>localStorage</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>A kezelt adatok köre és célja</h2>
+        <p>A bővítmény a következő, nem személyes jellegű információkat kezeli a böngészőn belül, kizárólag a működés biztosításához:</p>
+        <ul>
+          <li><strong>Beállítások és állapot</strong>: ablak pozíciója, láthatóság, deviza (HUF/EUR), tétmezők értékei, debug mód (<code>arb:debug</code>), utolsó állapot (<code>arb:lastState</code>), láthatósági igény (<code>arb:wantVisible</code>).</li>
+          <li><strong>Webhelytartalom olvasása</strong>: kizárólag a <strong>sportfogadasedge.hu</strong> oldalról szükséges mezők (oddsok, meccsnév, piac szöveg), a kalkulátor működtetéséhez.</li>
+        </ul>
+        <p><em>Személyazonosításra alkalmas adatot (pl. név, e-mail, IP-cím, sütik) nem gyűjtünk és nem tárolunk.</em></p>
+      </div>
+
+      <div class="card">
+        <h2>Engedélyek (Chrome)</h2>
+        <ul>
+          <li><code>storage</code> – helyi beállítások mentése.</li>
+          <li><code>tabs</code> – annak felismerése, ha a felhasználó a <strong>sportfogadasedge.hu</strong> oldalon van (a bővítmény funkcióinak aktiválásához). Böngészési előzmények követésére nem használjuk.</li>
+          <li><strong>Host engedélyek</strong> – kizárólag: <code>https://sportfogadasedge.hu/*</code> (és aldomainjei, ha vannak).</li>
+        </ul>
+        <p><strong>Távoli kód betöltése:</strong> nincs. A bővítmény nem tölt be és nem futtat harmadik féltől származó kódot.</p>
+      </div>
+
+      <div class="card">
+        <h2>Adatmegőrzés</h2>
+        <p>Minden beállítás a felhasználó böngészőjében tárolódik, amíg a felhasználó törli a bővítményt vagy a böngésző adatait (helyi tárolót). Szerverre nem kerül továbbításra.</p>
+      </div>
+
+      <div class="card">
+        <h2>Felhasználói jogok</h2>
+        <p>Mivel nem kezelünk személyes adatot, a GDPR szerinti kérelmek tipikusan nem relevánsak. Ha mégis kérdésed van, írj nekünk az alábbi elérhetőségen.</p>
+      </div>
+
+      <div class="card">
+        <h2>Kapcsolat</h2>
+        <p>E-mail: <a href="mailto:bodabeni@gmail.com">bodabeni@gmail.com</a><br>
+           Webhely: <a href="https://sportfogadasedge.hu" rel="noopener">sportfogadasedge.hu</a></p>
+      </div>
+
+      <div class="card">
+        <h2>Módosítások</h2>
+        <p>Fenntartjuk a jogot a jelen irányelvek módosítására. A változásokat ezen az oldalon tesszük közzé, frissített dátummal.</p>
+      </div>
+
+      <div class="foot muted">
+        Ez a dokumentum a Chrome Web Store „Privacy practices” követelményeihez készült. Nem minősül jogi tanácsnak.
+      </div>
+    </section>
+
+    <!-- ENGLISH -->
+    <section id="lang-en" class="lang" lang="en">
+      <div class="card">
+        <p><strong>Effective date:</strong> 2025-09-18</p>
+        <p>This Privacy Policy applies to the <span class="brand">Arbify – Mini Calculator</span> Chrome extension and our own website <span class="brand">sportfogadasedge.hu</span> (collectively, the “Service”). Operator: <strong>Arbify – Sportfogadás Edge</strong> (“we/us”).</p>
+      </div>
+
+      <div class="card">
+        <h2>Summary</h2>
+        <ul>
+          <li><strong>We do not collect personal data</strong> through the extension.</li>
+          <li>The extension only accesses public <strong>website content</strong> on our own domain <strong>sportfogadasedge.hu</strong> to display the arbitrage calculator and process odds.</li>
+          <li>No data is sold, shared with third parties, or used for profiling/advertising.</li>
+          <li>Settings are stored <strong>locally</strong> only: <code>chrome.storage.local</code> and <code>localStorage</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Data we handle and purpose</h2>
+        <p>Within the browser, solely to provide core functionality, we handle:</p>
+        <ul>
+          <li><strong>Preferences & state</strong>: window position/visibility, currency (HUF/EUR), stake fields, debug flag (<code>arb:debug</code>), last state (<code>arb:lastState</code>), visibility intent (<code>arb:wantVisible</code>).</li>
+          <li><strong>Reading website content</strong>: on <strong>sportfogadasedge.hu</strong> only (odds, match name, market text) required for the calculator.</li>
+        </ul>
+        <p><em>We do not collect or store personally identifiable information (e.g., name, email, IP address, cookies).</em></p>
+      </div>
+
+      <div class="card">
+        <h2>Chrome permissions</h2>
+        <ul>
+          <li><code>storage</code> – save local preferences.</li>
+          <li><code>tabs</code> – detect when the user is on <strong>sportfogadasedge.hu</strong> to activate features. Not used to track browsing history.</li>
+          <li><strong>Host permissions</strong> – only: <code>https://sportfogadasedge.hu/*</code> (and its subdomains, if any).</li>
+        </ul>
+        <p><strong>Remote code:</strong> none. The extension does not load or execute third-party code.</p>
+      </div>
+
+      <div class="card">
+        <h2>Retention</h2>
+        <p>All settings remain in the user’s browser until the extension or local browser data is removed. No server-side transfer occurs.</p>
+      </div>
+
+      <div class="card">
+        <h2>Your rights</h2>
+        <p>Since we do not process personal data, typical GDPR requests are not applicable. For any questions, contact us below.</p>
+      </div>
+
+      <div class="card">
+        <h2>Contact</h2>
+        <p>Email: <a href="mailto:bodabeni@gmail.com">bodabeni@gmail.com</a><br>
+           Website: <a href="https://sportfogadasedge.hu" rel="noopener">sportfogadasedge.hu</a></p>
+      </div>
+
+      <div class="card">
+        <h2>Changes</h2>
+        <p>We may update this Policy from time to time. Updates will be posted on this page with a revised effective date.</p>
+      </div>
+
+      <div class="foot muted">
+        This document is intended to satisfy Chrome Web Store Privacy Practices. It is not legal advice.
+      </div>
+    </section>
+  </div>
+</body>
+</html>
