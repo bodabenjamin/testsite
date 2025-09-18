@@ -15,7 +15,20 @@
     padding: 20px 10px;
     color: #e0e0e0;
     overflow-y: auto;
+    position: relative; /* a háttér finom overlay-hez */
   }
+
+  /* Ultra-minimális háttér-tuning: nagyon halvány „fényfoltok” + enyhe vignetta */
+  body::before{
+    content:"";
+    position: fixed; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(900px circle at 18% 10%, rgba(0,255,204,.06), transparent 60%),
+      radial-gradient(1000px circle at 82% 115%, rgba(0,255,136,.05), transparent 55%),
+      radial-gradient(1200px circle at 50% -10%, rgba(255,255,255,.03), transparent 40%);
+    z-index: 0;
+  }
+
   .calculator {
     background: rgba(34,40,49,0.85);
     border-radius: 20px;
@@ -282,6 +295,29 @@
   }
   #bookmakerButtons .book-link { margin-top: 0; }
   @media (max-width: 400px) { #bookmakerButtons { gap: 10px; } }
+
+  /* ===== Ultra-minim doboz finomítások (üveg hatás + belső highlight + mini hover-lift) ===== */
+  .calculator{
+    background: linear-gradient(180deg, rgba(34,40,49,.92), rgba(23,28,35,.92));
+    border-color: rgba(255,255,255,.06);
+    box-shadow: 0 8px 24px rgba(0,0,0,.22), 0 2px 8px rgba(0,255,168,.16);
+    backdrop-filter: blur(10px);
+  }
+  .calculator::after{
+    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), inset 0 -1px 0 rgba(0,0,0,.35);
+  }
+  @media (hover:hover){
+    .calculator:hover{
+      transform: scale(1.005) translateY(-1px);
+      box-shadow: 0 10px 28px rgba(0,0,0,.25), 0 3px 10px rgba(0,255,168,.18);
+    }
+  }
+  .calculator h1{ margin-bottom: 18px; }
+  .calculator h1::after{
+    content:""; display:block; height:1px; margin-top:12px;
+    background: linear-gradient(90deg, transparent, #00ffcc33, transparent);
+  }
   </style>
 </head>
 <body>
@@ -396,7 +432,8 @@
   };
 
   // --- Quick Bet link konfiguráció ---
-  const QUICK_BET_BASE = (window.location.origin || '').replace(/\/$/, '') + '/gyors';
+  // Kért forma: /sportfogadasedge/gyors?irodaURL=...&irodaURL=...
+  const QUICK_BET_BASE = (window.location.origin || '').replace(/\/$/, '') + '/sportfogadasedge/gyors';
   function buildQuickBetLink(urls){
     if (!urls || !urls.length) return '#';
     const params = new URLSearchParams();
@@ -505,7 +542,7 @@
   // Eszköz detektálás
   function isMobileDevice(){
     const ua = navigator.userAgent || '';
-    const mobileUA = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(ua);
+       const mobileUA = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(ua);
     const touchCoarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     return mobileUA || touchCoarse;
   }
@@ -608,7 +645,7 @@
         quick.id = "quickBetBtn";
         quick.className = "book-link";
         const quickUrls = collectBookmakerUrls();
-        quick.href = buildQuickBetLink(quickUrls); // /gyors?irodaURL=...&irodaURL=...
+        quick.href = buildQuickBetLink(quickUrls); // /sportfogadasedge/gyors?irodaURL=...&irodaURL=...
         quick.target = "_blank";
         quick.rel = "noopener";
         quick.textContent = "Gyors fogadás";
