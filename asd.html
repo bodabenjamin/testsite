@@ -271,6 +271,41 @@
     max-width: 100%; line-height: 1.15; word-break: break-word; text-align: center;
   }
   .match-pill .dot{ width:8px; height:8px; border-radius:50%; background:#00ffcc; box-shadow:0 0 8px #00ffcc88; flex:0 0 auto; }
+
+  /* --- GYORS FOGADÁS + vízszintes gombsor --- */
+  #bookmakerButtons{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  #bookmakerButtons .quick-bet{
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.05rem;
+    padding: 12px 0;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #5ee7ff, #00c2ff);
+    color: #0f1720;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 6px 18px rgba(0, 194, 255, 0.35);
+  }
+  #bookmakerButtons .quick-bet:hover,
+  #bookmakerButtons .quick-bet:focus{
+    box-shadow: 0 8px 24px rgba(0, 194, 255, 0.5);
+  }
+  #bookmakerButtons .book-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  #bookmakerButtons .book-link{
+    width: auto;
+    padding: 12px 16px;
+    flex: 0 0 auto;
+  }
   </style>
 </head>
 <body>
@@ -556,6 +591,12 @@
                : 'HUF';
   }
 
+  /* Gyors-link paraméternév a könyvtár kulcsából */
+  function paramNameFromKey(key){
+    if (key === 'tippmixpro') return 'tippmixurl'; // külön kérésre
+    return `${key}url`; // pl. vegas -> vegasurl, blaze -> blazeurl
+  }
+
   function showBookmakerButtons() {
     try {
       const bookDiv = document.getElementById("bookmakerButtons");
@@ -573,21 +614,52 @@
         if (!bm || seen.has(key)) return;
 
         const url = resolveBookmakerUrl(key, bm.url);
-        books.push({ label: bm.label, url });
-        seen.add(key);
+        if (url) {
+          books.push({ key, label: bm.label, url });
+          seen.add(key);
+        }
       });
 
-      books.forEach(bm => {
-        const a = document.createElement("a");
-        a.className = "book-link";
-        a.href = bm.url;
-        a.target = "_blank";
-        a.rel = "noreferrer noopener";
-        a.textContent = bm.label;
-        bookDiv.appendChild(a);
-      });
+      if (books.length > 0) {
+        // Felül: Gyors fogadás gomb (csak URL értékekkel)
+        const quickBase = "https://sportfogadasedge.hu/gyors";
+        const qp = new URLSearchParams();
+        books.forEach(bm => {
+          const pname = paramNameFromKey(bm.key);
+          qp.set(pname, bm.url); // URLSearchParams végzi a kódolást → egyszeres, helyes kódolás
+        });
+        const quickHref = `${quickBase}?${qp.toString()}`;
 
-      calcButton.style.display = books.length ? "none" : "inline-block";
+        const quick = document.createElement("a");
+        quick.className = "quick-bet";
+        quick.href = quickHref;
+        quick.target = "_blank";
+        quick.rel = "noreferrer noopener";
+        quick.textContent = "Gyors fogadás";
+        bookDiv.appendChild(quick);
+
+        // Alatta: irodák egymás mellett
+        const row = document.createElement("div");
+        row.className = "book-row";
+
+        books.forEach(bm => {
+          const a = document.createElement("a");
+          a.className = "book-link";
+          a.href = bm.url;
+          a.target = "_blank";
+          a.rel = "noreferrer noopener";
+          a.textContent = bm.label;
+          row.appendChild(a);
+        });
+
+        bookDiv.appendChild(row);
+
+        // Ha vannak gombok, a Számolás gombot elrejtjük
+        calcButton.style.display = "none";
+      } else {
+        // Nincs linkelt iroda → mutassuk a Számolás gombot
+        calcButton.style.display = "inline-block";
+      }
     } catch (e) {
       console.error(e);
       calcButton.style.display = "inline-block";
