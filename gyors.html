@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Gyors megnyitás – Arbify</title>
+  <style>
+    :root{
+      --bg-1:#0f0f0f; --bg-2:#1a1a1a;
+      --card:rgba(34,40,49,.82);
+      --border:rgba(255,255,255,.06);
+      --text:#e8e8e8; --accent:#00ff88; --accent-2:#00e0aa;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 20% 0%, #0f1518 0%, #0e0e0e 40%, var(--bg-2) 100%);
+      color:var(--text);
+      font-family: system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Helvetica Neue',Arial,'Noto Sans',sans-serif;
+      min-height:100svh;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    /* === KÖZÉPEN LÉVŐ BLOKK (arrow + card) — fix középre igazítva === */
+    .center {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%); /* pontos közép */
+      display: grid;
+      place-items: center;
+      z-index: 2;
+    }
+
+    /* Nyíl közvetlen a doboz fölött */
+    .pointer{
+      width:40px; height:40px; margin-bottom:10px;
+      filter: drop-shadow(0 0 14px rgba(0,255,160,.55));
+      animation: nudge 1.1s ease-in-out infinite, glow 2.2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .pointer path{ fill:none; stroke:var(--accent); stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }
+    @keyframes nudge{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+    @keyframes glow{ 0%,100%{filter:drop-shadow(0 0 10px rgba(0,255,160,.45))} 50%{filter:drop-shadow(0 0 20px rgba(0,255,160,.8))} }
+
+    /* Kicsi, tartalomkövető doboz */
+    .card{
+      width:min(420px, 92vw);
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      backdrop-filter:blur(10px);
+      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      padding:14px;
+      text-align:center;
+      opacity:0; transform:translateY(8px) scale(.985);
+      transition:opacity .3s ease, transform .3s ease;
+    }
+    .card.visible{ opacity:1; transform:none; }
+
+    .bigbtn{
+      width:100%;
+      padding:16px 18px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.06);
+      cursor:pointer;
+      font-weight:900; font-size:1.15rem; letter-spacing:.02em; color:#0b0f0d;
+      background:linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);
+      box-shadow:0 8px 22px rgba(0,255,170,.28), inset 0 0 0 1px rgba(255,255,255,.06);
+      transition:transform .06s ease, box-shadow .18s ease, filter .18s ease;
+      user-select:none; touch-action:manipulation;
+      animation: wiggle 2.6s ease-in-out infinite;
+    }
+    .bigbtn:hover,.bigbtn:focus{ filter:brightness(1.04); box-shadow:0 12px 32px rgba(0,255,170,.34) }
+    .bigbtn:active{ transform:scale(.985) }
+    .bigbtn:focus{ outline:none }
+    @keyframes wiggle{
+      0%,100%{transform:translateX(0) rotate(0)}
+      12%{transform:translateX(-1px) rotate(-.2deg)}
+      24%{transform:translateX(1px) rotate(.2deg)}
+      36%{transform:translateX(-.8px) rotate(-.16deg)}
+      48%{transform:translateX(.8px) rotate(.16deg)}
+      60%{transform:translateX(-.6px) rotate(-.12deg)}
+      72%{transform:translateX(.6px) rotate(.12deg)}
+      84%{transform:translateX(-.4px) rotate(-.08deg)}
+    }
+
+    /* Tipp – külön elem, JS igazítja a doboz alá */
+    .tip{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width:min(520px, 92vw);
+      padding:10px 12px;
+      border-radius:12px;
+      background:rgba(0,0,0,.14);
+      border:1px solid rgba(255,255,255,.06);
+      color:#cfeae3; font-size:.95rem;
+      display:flex; gap:10px; align-items:flex-start; text-align:left;
+      z-index:1;
+    }
+    .tip .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent-2); box-shadow:0 0 10px rgba(0,224,170,.5); margin-top:6px; flex:0 0 auto; }
+
+    @media (max-width:420px){
+      .pointer{ width:36px; height:36px }
+      .bigbtn{ font-size:1.06rem; padding:16px 16px }
+    }
+    @media (prefers-reduced-motion:reduce){
+      .pointer,.bigbtn{ animation:none }
+      .card{ transition:none; transform:none; opacity:1 }
+    }
+  </style>
+</head>
+<body>
+  <!-- KÖZÉPEN fixált blokk -->
+  <div id="center" class="center">
+    <svg class="pointer" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 8l6 6 6-6"></path>
+    </svg>
+    <main class="card" role="main" aria-label="Gyors megnyitás">
+      <button id="goBtn" class="bigbtn" type="button" autofocus aria-label="Kattints ide">Kattints ide</button>
+    </main>
+  </div>
+
+  <!-- Tipp (JS pozicionálja a doboz alá) -->
+  <div id="tip" class="tip" role="note" aria-label="Tipp">
+    <span class="dot" aria-hidden="true"></span>
+    <span id="tipText"><strong>Tipp:</strong> Jegyeztesd meg a jelszavad a fogadóirodán, így gyorsabban lépsz be.</span>
+  </div>
+
+  <script>
+    // Belépő anim
+    const card = document.querySelector('.card');
+    requestAnimationFrame(()=> card.classList.add('visible'));
+
+    // Tipp pozicionálása a doboz alá, mindig középen
+    function positionTip(){
+      const center = document.getElementById('center');
+      const tip = document.getElementById('tip');
+      const rect = center.getBoundingClientRect();
+      const gap = 12; // távolság a doboztól
+      tip.style.top = `${Math.round(rect.bottom + gap)}px`;
+    }
+    window.addEventListener('load', positionTip);
+    window.addEventListener('resize', positionTip);
+    window.addEventListener('orientationchange', positionTip);
+
+    // URL-ek: első két *url=
+    function sanitize(u){
+      try{
+        const url = new URL(u, window.location.href);
+        if (url.protocol!=='http:' && url.protocol!=='https:') return null;
+        return url.href;
+      }catch{ return null; }
+    }
+    const params = new URLSearchParams(window.location.search);
+    const targets = [];
+    for (const [k,v] of params.entries()){
+      if (/url$/i.test(k)){
+        const clean = sanitize(v);
+        if (clean) targets.push(clean);
+        if (targets.length === 2) break;
+      }
+    }
+    const openUrl = targets[0] || null;
+    const redirectUrl = targets[1] || null;
+
+    // Random tipp (&tip=0/1/2… felülírható)
+    const tips = [
+      "Jegyeztesd meg a jelszavad a fogadóirodán, így gyorsabban lépsz be.",
+      "Ha nem találod az opciót, szánj pár percet a felület kiismerésére — legközelebb gyorsabb lesz.",
+      "Zárj be minden felesleges böngészőablakot, könnyebb lesz váltani."
+    ];
+    const tipParam = Number(params.get('tip'));
+    const tipIndex = Number.isInteger(tipParam) && tipParam >= 0 && tipParam < tips.length ? tipParam : Math.floor(Math.random()*tips.length);
+    document.getElementById('tipText').innerHTML = `<strong>Tipp:</strong> ${tips[tipIndex]}`;
+
+    // Gomb kattintás
+    const btn = document.getElementById('goBtn');
+    btn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      btn.disabled = true;
+      if (openUrl){ try{ window.open(openUrl, '_blank', 'noopener,noreferrer'); }catch{} }
+      if (redirectUrl){ setTimeout(()=>{ window.location.assign(redirectUrl); }, 60); } else { btn.disabled = false; }
+    });
+
+    // Enter/Space
+    btn.addEventListener('keydown', (e)=>{
+      if (e.key==='Enter' || e.key===' '){ e.preventDefault(); btn.click(); }
+    });
+  </script>
+</body>
+</html>
