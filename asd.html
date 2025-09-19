@@ -97,6 +97,7 @@
   #bookmakerButtons:not(:empty){ margin-top: 6px; margin-bottom: 12px; }
   #bookmakerButtons:not(:empty)::after{
     content:""; display:block; height:1px; margin:12px 0 4px 0;
+    grid-column: 1 / -1;
     background: linear-gradient(90deg, transparent, #00ffcc33, transparent);
   }
 
@@ -153,6 +154,7 @@
     input[type="number"], .value-input { font-size: 0.95rem; padding: 10px 12px; width: 100%; }
     button, .book-link { font-size: 1.1rem; padding: 12px 0; }
     .result { font-size: 1rem; margin-top: 22px; }
+    #bookmakerButtons{ gap: 4px; }
     .row { margin-top: 5px; flex-wrap: wrap; }
     .logo { width: 50px; height: 50px; }
     .logo-wrapper { margin-bottom: 14px; }
@@ -278,7 +280,7 @@
   #bookmakerButtons {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: 6px;
   }
   #bookmakerButtons .book-link { margin-top: 0; }
   @media (max-width: 400px) { #bookmakerButtons { gap: 10px; } }
@@ -1453,4 +1455,5 @@
   </script>
 </body>
 </html>
+
 
