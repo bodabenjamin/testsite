@@ -316,6 +316,18 @@
           </label>
         </div>
 
+        <!-- ÚJ: Oldalak megnyitása egyszerre -->
+        <div class="setting-row">
+          <div style="max-width: calc(100% - 120px);">
+            <div class="lbl">Oldalak megnyitása egyszerre</div>
+            <div class="desc">PC-n a "Gyors megnyitás" gomb két irodát nyit meg külön füleken.</div>
+          </div>
+          <label class="toggle" title="Be/Ki">
+            <input type="checkbox" id="multiOpenToggle">
+            <span class="track"><span class="knob"></span></span>
+          </label>
+        </div>
+
         <hr style="border:none; border-top:1px solid rgba(255,255,255,.08); margin:12px 0;">
 
         <div class="setting-row">
@@ -427,7 +439,7 @@
     const h1 = calc.querySelector('h1');
     if (!h1) return;
 
-    if (!matchName || String(matchName).trim() === '') {
+    if (!matchName vagy String(matchName).trim() === '') {
       const oldWrap = document.getElementById('matchPillWrap');
       if (oldWrap) oldWrap.remove();
       return;
@@ -530,7 +542,7 @@
   function sanitizeUrl(u) {
     try {
       const url = new URL(u, window.location.origin);
-      if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+      if (url.protocol !== 'http:' és url.protocol !== 'https:') return null;
       return url.href;
     } catch { return null; }
   }
@@ -606,7 +618,7 @@
         seen.add(key);
       });
 
-      // Gyors fogadás gomb – ha van legalább 1 iroda
+      // Gyors gomb – ha van legalább 1 iroda
       if (books.length && quickWrap) {
         const quick = document.createElement("a");
         quick.id = "quickBetBtn";
@@ -615,8 +627,34 @@
         quick.href = buildQuickBetLink(quickUrls); // /gyors?irodaURL=...&irodaURL=...
         quick.target = "_blank";
         quick.rel = "noopener";
-        quick.textContent = "Gyors fogadás";
+        quick.textContent = "Gyors megnyitás";
         quickWrap.appendChild(quick);
+
+        // Ha PC és be van kapcsolva az "Oldalak megnyitása egyszerre", akkor a gyors gomb két fület nyit
+        quick.addEventListener('click', (e) => {
+          const multi = (localStorage.getItem(LS_KEY_MULTI_OPEN) || 'false') === 'true';
+          if (!multi || !isDesktopDevice()) return;  // csak PC-n és ha engedélyezett
+
+          const urls = collectBookmakerUrls();
+          if (!urls.length) return;
+
+          e.preventDefault();
+
+          let opened = 0;
+          // 1-2 URL, külön füleken
+          urls.forEach(u => {
+            try {
+              const w = window.open(u, '_blank', 'noopener');
+              if (w) opened++;
+            } catch {}
+          });
+
+          // Ha a böngésző mindent blokkolt, essünk vissza az eredeti linkre + mutassunk hintet
+          if (opened === 0) {
+            showPopupHint();
+            window.location.href = quick.href; // fallback a /gyors oldalra
+          }
+        });
       }
 
       // Iroda gombok (egymás mellett – CSS grid intézi)
@@ -1050,6 +1088,7 @@
      ========================= */
   const LS_KEY_AUTO_OPEN = 'autoOpenLinks';
   const SS_KEY_ALREADY_TRIED = 'autoOpen_tried';
+  const LS_KEY_MULTI_OPEN = 'multiOpenOnQuick';
 
   (function initSettingsUI(){
     if (!isDesktopDevice()){
@@ -1089,6 +1128,16 @@
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeSettings(); });
 
     toggle.addEventListener('change', ()=>{ localStorage.setItem(LS_KEY_AUTO_OPEN, toggle.checked ? 'true' : 'false'); });
+
+    // --- ÚJ: Oldalak megnyitása egyszerre toggle ---
+    const multiToggle = document.getElementById('multiOpenToggle');
+    const savedMulti = (localStorage.getItem(LS_KEY_MULTI_OPEN) || 'false') === 'true';
+    if (multiToggle) {
+      multiToggle.checked = savedMulti;
+      multiToggle.addEventListener('change', () => {
+        localStorage.setItem(LS_KEY_MULTI_OPEN, multiToggle.checked ? 'true' : 'false');
+      });
+    }
   })();
 
   // Eszköz/nézet detektálás egyszerűsített
@@ -1455,6 +1504,3 @@
   </script>
 </body>
 </html>
-
-
-
