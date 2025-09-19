@@ -439,7 +439,7 @@
     const h1 = calc.querySelector('h1');
     if (!h1) return;
 
-    if (!matchName vagy String(matchName).trim() === '') {
+    if (!matchName || String(matchName).trim() === '') 
       const oldWrap = document.getElementById('matchPillWrap');
       if (oldWrap) oldWrap.remove();
       return;
@@ -542,7 +542,8 @@
   function sanitizeUrl(u) {
     try {
       const url = new URL(u, window.location.origin);
-      if (url.protocol !== 'http:' és url.protocol !== 'https:') return null;
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+
       return url.href;
     } catch { return null; }
   }
@@ -1504,3 +1505,4 @@
   </script>
 </body>
 </html>
+
