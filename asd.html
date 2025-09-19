@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Arbitrázs Kalkulátor – Dark Mode</title>
   <style>
-  body {
+ body {
     background: linear-gradient(135deg, #121212, #1e1e1e);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
@@ -80,7 +80,6 @@
   button, .book-link {
     margin-top: 24px; width: 100%; display: inline-block; text-decoration: none; text-align: center;
     font-weight: 700; font-size: 1.2rem; padding: 14px 0; border-radius: 12px; cursor: pointer;
-    min-height: 48px; /* egységes magasság */
   }
   button {
     background: linear-gradient(90deg, #00c853, #009624); border: none; color: white;
@@ -99,7 +98,6 @@
   #bookmakerButtons:not(:empty)::after{
     content:""; display:block; height:1px; margin:12px 0 4px 0;
     background: linear-gradient(90deg, transparent, #00ffcc33, transparent);
-    grid-column: 1 / -1; /* húzza végig a csíkot a grid teljes szélességén */
   }
 
   .result { margin-top: 28px; font-weight: 700; font-size: 1.15rem; line-height: 1.5; color: #e0e0e0; text-align: left; }
@@ -276,29 +274,16 @@
 
   /* --- Bookmaker gombok sorban + Gyors fogadás gomb --- */
   #quickBetWrap:empty { display: none; }
-  #quickBetWrap { margin-top: 8px; }
-  #quickBetWrap .book-link { margin-top: 18px; margin-bottom: 12px; } /* gyors és az alatta lévő gombok között */
+  #quickBetWrap .book-link { margin-top: 18px; }
   #bookmakerButtons {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px; /* nagyobb tér a két alsó gomb között */
+    gap: 12px;
   }
   #bookmakerButtons .book-link { margin-top: 0; }
-
-  /* --- "Gyors fogadás" = Premier lila --- */
-  #quickBetBtn{
-    background: linear-gradient(90deg, #7C4DFF, #651FFF);
-    color:#fff;
-    box-shadow: 0 6px 18px rgba(101,31,255,.55);
-  }
-  #quickBetBtn:hover,
-  #quickBetBtn:focus{
-    background: linear-gradient(90deg, #651FFF, #7C4DFF);
-    box-shadow: 0 8px 22px rgba(101,31,255,.65);
-  }
-
   @media (max-width: 400px) { #bookmakerButtons { gap: 10px; } }
 </style>
+
 
 </head>
 <body>
