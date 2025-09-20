@@ -89,6 +89,7 @@
   }
   .book-link:hover, .book-link:focus { background: linear-gradient(90deg, #00bfa5, #00ffcc); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.9); }
 
+  /* Irodák gombcsoport elválasztó */
   #bookmakerButtons:not(:empty){ margin-top: 6px; margin-bottom: 12px; }
   #bookmakerButtons:not(:empty)::after{
     content:""; display:block; height:1px; margin:12px 0 4px 0;
@@ -263,8 +264,12 @@
   }
   .match-pill .dot{ width:8px; height:8px; border-radius:50%; background:#00ffcc; box-shadow:0 0 8px #00ffcc88; flex:0 0 auto; }
 
+  /* Gyors megnyitás + irodák gombok */
   #quickBetWrap:empty { display: none; }
   #quickBetWrap .book-link { margin-top: 18px; }
+  /* KÉRT KIS PLUSZ RÉS a két gombcsoport között */
+  #quickBetWrap { margin-bottom: 10px; }
+
   #bookmakerButtons {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -307,7 +312,7 @@
         <div class="setting-row">
           <div style="max-width: calc(100% - 120px);">
             <div class="lbl">Oldalak megnyitása egyszerre</div>
-            <div class="desc">Ha be van kapcsolva, a „Gyors megnyitás” gomb az összes irodát egyszerre nyitja meg új füleken.</div>
+            <div class="desc">Ha be van kapcsolva, a „Gyors megnyitás” gomb az összes irodát egyszerre nyitja meg új füleken (a /gyors oldal megnyitása nélkül).</div>
           </div>
           <label class="toggle" title="Be/Ki">
             <input type="checkbox" id="openAllToggle">
@@ -599,16 +604,17 @@
         quick.id = "quickBetBtn";
         quick.className = "book-link";
         const quickUrls = collectBookmakerUrls();
-        quick.href = buildQuickBetLink(quickUrls); // fallback /gyors
+        quick.href = buildQuickBetLink(quickUrls); // fallback /gyors (ha a kapcsoló KI van)
         quick.target = "_blank";
         quick.rel = "noopener";
         quick.textContent = "Gyors megnyitás";
 
-        // ha be van kapcsolva, a Gyors megnyitás mindent megnyit külön füleken
+        // BE kapcsolva: CSAK a két iroda linkje nyíljon, a /gyors NE!
         quick.addEventListener('click', (e) => {
           const enabled = (localStorage.getItem(LS_KEY_OPEN_ALL_ON_QUICK) || 'false') === 'true';
-          if (!enabled) return; // menjen a /gyors linkre
+          if (!enabled) return; // menjen a /gyors linkre normálisan
 
+          e.preventDefault(); // sose nyissuk meg a /gyors oldalt, ha be van kapcsolva
           const urls = collectBookmakerUrls();
           if (!urls.length) return;
 
@@ -620,10 +626,9 @@
             } catch {}
           });
 
-          if (openedCount > 0) {
-            e.preventDefault(); // sikerült, nem kell /gyors
-          } else {
-            showPopupHint(); // popup blokkoló – jelzés
+          if (openedCount === 0) {
+            // popup blokkoló – jelzés (de a /gyors így sem nyílik meg)
+            showPopupHint();
           }
         });
 
