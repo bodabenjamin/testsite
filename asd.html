@@ -28,7 +28,6 @@
     text-align: center;
     margin: auto;
   }
-  /* Animáció, ha a JS ráteszi a .visible osztályt */
   .calculator.visible { animation: calcEnter .6s cubic-bezier(.6,1.5,.7,1) both; }
   @keyframes calcEnter {
     from { opacity: 0; transform: scale(0.94) translateY(30px); }
@@ -605,10 +604,10 @@
         quick.rel = "noopener";
         quick.textContent = "Gyors megnyitás";
 
-        // ÚJ: ha a beállítás be van kapcsolva, a Gyors megnyitás mindent megnyit külön füleken
+        // ha be van kapcsolva, a Gyors megnyitás mindent megnyit külön füleken
         quick.addEventListener('click', (e) => {
           const enabled = (localStorage.getItem(LS_KEY_OPEN_ALL_ON_QUICK) || 'false') === 'true';
-          if (!enabled) return; // hagy menjen a /gyors linkre
+          if (!enabled) return; // menjen a /gyors linkre
 
           const urls = collectBookmakerUrls();
           if (!urls.length) return;
@@ -622,11 +621,9 @@
           });
 
           if (openedCount > 0) {
-            // Sikerült külön füleken megnyitni – ne navigáljunk a /gyors oldalra
-            e.preventDefault();
+            e.preventDefault(); // sikerült, nem kell /gyors
           } else {
-            // Popup blokkoló miatt nem sikerült – hagyjuk meg a /gyors fallbacket és jelezzünk
-            showPopupHint();
+            showPopupHint(); // popup blokkoló – jelzés
           }
         });
 
@@ -1320,7 +1317,7 @@
     const label2 = document.createElement('span');
     label2.className = 'label-text stake-title';
     label2.id = 'stake2Label';
-    label2.textContent = `${labelOdds2.textContent} tét (${labelFor(stakeMode2}):`.replace('{', '').replace('}', '');
+    label2.textContent = `${labelOdds2.textContent} tét (${labelFor(stakeMode2)}):`;
 
     const stake2Box = document.createElement('div');
     stake2Box.style.display = 'flex';
