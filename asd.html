@@ -27,9 +27,8 @@
     width: 100%;
     text-align: center;
     margin: auto;
-    /* FONTOS: alapból legyen látható, hogy JS hiba esetén se tűnjön el */
   }
-  /* Animáció csak akkor, ha JS ráteszi a .visible osztályt */
+  /* Animáció, ha a JS ráteszi a .visible osztályt */
   .calculator.visible { animation: calcEnter .6s cubic-bezier(.6,1.5,.7,1) both; }
   @keyframes calcEnter {
     from { opacity: 0; transform: scale(0.94) translateY(30px); }
@@ -278,10 +277,12 @@
 </head>
 <body>
   <div class="calculator" role="main" aria-label="Arbitrázs kalkulátor">
+    <!-- Beállítások gomb -->
     <button class="settings-btn" id="settingsBtn" aria-label="Beállítások">
       <img src="123.png" alt="Beállítások">
     </button>
 
+    <!-- Beállítások -->
     <div class="modal-backdrop" id="settingsBackdrop" hidden></div>
     <div class="modal" id="settingsModal" hidden>
       <div class="box">
@@ -297,6 +298,20 @@
           </div>
           <label class="toggle" title="Be/Ki">
             <input type="checkbox" id="autoOpenToggle">
+            <span class="track"><span class="knob"></span></span>
+          </label>
+        </div>
+
+        <hr style="border:none; border-top:1px solid rgba(255,255,255,.08); margin:12px 0;">
+
+        <!-- ÚJ: Oldalak megnyitása egyszerre (Gyors megnyitásra) -->
+        <div class="setting-row">
+          <div style="max-width: calc(100% - 120px);">
+            <div class="lbl">Oldalak megnyitása egyszerre</div>
+            <div class="desc">Ha be van kapcsolva, a „Gyors megnyitás” gomb az összes irodát egyszerre nyitja meg új füleken.</div>
+          </div>
+          <label class="toggle" title="Be/Ki">
+            <input type="checkbox" id="openAllToggle">
             <span class="track"><span class="knob"></span></span>
           </label>
         </div>
@@ -347,6 +362,7 @@
   </div>
 
   <script>
+  // === Helper-ek és állandók ===
   const _hidden = id => document.getElementById(id);
   const _getHiddenVal = id => {
     const el = _hidden(id);
@@ -355,9 +371,15 @@
   const _getBookVal = key => _getHiddenVal(key) ?? (new URLSearchParams(window.location.search)).get(key);
 
   const eurRate = 393;
-  const ronRate = 80;
+  const ronRate = 80; // 1 RON ≈ 80 HUF
   const GUIDE_URL = "https://discord.com/channels/1352389902033096724/1400422649502502953/1402328347480162324";
   const POPUP_AUTO_DISMISS_MS = 7500;
+
+  // LS kulcsok
+  const LS_KEY_AUTO_OPEN = 'autoOpenLinks';           // betöltéskor automatikus nyitás
+  const LS_KEY_OPEN_ALL_ON_QUICK = 'openAllOnQuick';  // gyors megnyitás gomb nyisson mindent
+
+  const SS_KEY_ALREADY_TRIED = 'autoOpen_tried';
 
   const bookmakers = {
     tippmixpro: { label: "TippMixPro", url: "https://www.tippmixpro.hu/" },
@@ -401,16 +423,12 @@
     const matchName = getMatchName();
     const calc = document.querySelector('.calculator');
     if (!calc) return;
-
-    const h1 = calc.querySelector('h1');
-    if (!h1) return;
+    const h1 = calc.querySelector('h1'); if (!h1) return;
 
     if (!matchName || String(matchName).trim() === '') {
-      const oldWrap = document.getElementById('matchPillWrap');
-      if (oldWrap) oldWrap.remove();
+      document.getElementById('matchPillWrap')?.remove();
       return;
     }
-
     let wrap = document.getElementById('matchPillWrap');
     if (!wrap) {
       wrap = document.createElement('div');
@@ -427,11 +445,11 @@
       wrap.appendChild(pill);
       h1.insertAdjacentElement('afterend', wrap);
     }
-
     const pillText = document.querySelector('#matchPill .text');
     if (pillText) pillText.textContent = matchName;
   }
 
+  // Deviza módok (HUF/EUR/RON)
   let stakeMode1 = 'HUF';
   let stakeMode2 = 'HUF';
 
@@ -456,11 +474,13 @@
 
   const labelFor = m => (m === 'EUR' ? 'EUR' : (m === 'RON' ? 'RON' : 'Ft'));
 
+  // BETÖLTÉSKOR
   window.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.calculator')?.classList.add('visible');
     try {
       applyURLParamsToFields();
 
+      // Hidden paramok kitöltése (case-insensitive)
       const f1Param = getCaseInsensitiveParam('F1');
       const f2Param = getCaseInsensitiveParam('F2');
       const meccsParam = getCaseInsensitiveParam('Meccs');
@@ -509,11 +529,8 @@
   }
   function resolveBookmakerUrl(key, defaultUrl) {
     const override = getCaseInsensitiveParam(`${key}url`);
-    if (override) {
-      const sanitized = sanitizeUrl(override);
-      if (sanitized) return sanitized;
-    }
-    return defaultUrl;
+    const sanitized = override ? sanitizeUrl(override) : null;
+    return sanitized || defaultUrl;
   }
   function parseNum(el) { return Number(String(el.value).replace(',', '.')); }
 
@@ -554,6 +571,7 @@
                : 'HUF';
   }
 
+  // Gombok megjelenítése + Gyors megnyitás viselkedése
   function showBookmakerButtons() {
     try {
       const bookDiv = document.getElementById("bookmakerButtons");
@@ -582,20 +600,19 @@
         quick.id = "quickBetBtn";
         quick.className = "book-link";
         const quickUrls = collectBookmakerUrls();
-        quick.href = buildQuickBetLink(quickUrls);
+        quick.href = buildQuickBetLink(quickUrls); // fallback /gyors
         quick.target = "_blank";
         quick.rel = "noopener";
         quick.textContent = "Gyors megnyitás";
-        quickWrap.appendChild(quick);
 
-        const openAll = document.createElement("button");
-        openAll.id = "openAllBtn";
-        openAll.type = "button";
-        openAll.className = "book-link";
-        openAll.textContent = "Oldalak megnyitása egyszerre";
-        openAll.addEventListener('click', () => {
+        // ÚJ: ha a beállítás be van kapcsolva, a Gyors megnyitás mindent megnyit külön füleken
+        quick.addEventListener('click', (e) => {
+          const enabled = (localStorage.getItem(LS_KEY_OPEN_ALL_ON_QUICK) || 'false') === 'true';
+          if (!enabled) return; // hagy menjen a /gyors linkre
+
           const urls = collectBookmakerUrls();
           if (!urls.length) return;
+
           let openedCount = 0;
           urls.forEach(u => {
             try {
@@ -603,11 +620,20 @@
               if (w) openedCount++;
             } catch {}
           });
-          if (openedCount === 0) showPopupHint();
+
+          if (openedCount > 0) {
+            // Sikerült külön füleken megnyitni – ne navigáljunk a /gyors oldalra
+            e.preventDefault();
+          } else {
+            // Popup blokkoló miatt nem sikerült – hagyjuk meg a /gyors fallbacket és jelezzünk
+            showPopupHint();
+          }
         });
-        quickWrap.appendChild(openAll);
+
+        quickWrap.appendChild(quick);
       }
 
+      // Iroda gombok
       books.forEach(bm => {
         const a = document.createElement("a");
         a.className = "book-link";
@@ -618,6 +644,7 @@
         bookDiv.appendChild(a);
       });
 
+      // Ha van iroda, a „Számolás” gomb marad rejtve
       calcButton.style.display = books.length ? "none" : "inline-block";
     } catch (e) {
       console.error(e);
@@ -660,6 +687,7 @@
     calculateArbitrage();
   }
 
+  // == Deviza ↔ HUF konverzió ==
   function displayToHUF(displayValue, mode){
     const n = Number(String(displayValue).replace(',', '.')) || 0;
     if (mode === 'EUR') return n * eurRate;
@@ -674,7 +702,7 @@
   }
   function formatDisplay(n, mode){
     if (mode === 'EUR') return (Math.round(n * 10) / 10).toFixed(1);
-    return Math.round(n).toString();
+    return Math.round(n).toString(); // HUF és RON: egész
   }
   function roundToTenthEUR(x) {
     const n = Number(x);
@@ -722,6 +750,7 @@
     updateProfits(odds1, odds2);
   }
 
+  // ==== Másolás ====
   function copyToClipboard(text) {
     if (!text && text !== 0) return Promise.resolve(false);
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -753,9 +782,10 @@
     }, 1500);
   }
 
+  // ==== Kerekítés és léptetés ====
   function roundedPairFrom(source, s1HUF, s2HUF, o1, o2){
     const stepForHufOrRon = (hufValue, mode) => {
-      if (mode === 'RON') return ronRate;
+      if (mode === 'RON') return ronRate; // egész RON HUF-térben
       return stepForHUF(hufValue);
     };
 
@@ -956,7 +986,7 @@
   function updateStakeAltDisplays() {
     if (!stake1Input || !stake2Input) return;
     const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
-    const odds2 = parseFloat(odds2Field.value.replace(',', '.')); /* <-- FIX: itt volt a szintaktikai hiba */
+    const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
 
     const [s1HUF, s2HUF] = getDisplayStakesHUF(odds1, odds2);
 
@@ -1005,6 +1035,7 @@
     updateStakeAltDisplays();
   }
 
+  // Betöltéskori kerekítés + mozgásfigyelők
   window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => roundAll(), 0);
 
@@ -1019,9 +1050,9 @@
     }, { capture: true });
   });
 
-  const LS_KEY_AUTO_OPEN = 'autoOpenLinks';
-  const SS_KEY_ALREADY_TRIED = 'autoOpen_tried';
-
+  /* =========================
+     Beállítások MODÁL + Auto Open + „Open All on Quick”
+     ========================= */
   (function initSettingsUI(){
     if (!isDesktopDevice()){
       const btn = document.getElementById('settingsBtn');
@@ -1037,7 +1068,8 @@
     const modal = document.getElementById('settingsModal');
     const backdrop = document.getElementById('settingsBackdrop');
     const closeX = document.getElementById('settingsClose');
-    const toggle = document.getElementById('autoOpenToggle');
+    const toggleAuto = document.getElementById('autoOpenToggle');
+    const toggleOpenAll = document.getElementById('openAllToggle');
     const guideLinkEl = document.getElementById('guideLink');
 
     const openSettings = ()=>{
@@ -1051,19 +1083,29 @@
 
     if (guideLinkEl) guideLinkEl.href = GUIDE_URL;
 
-    const saved = (localStorage.getItem(LS_KEY_AUTO_OPEN) || 'false') === 'true';
-    toggle.checked = saved;
+    // Betöltés: állapotok
+    const savedAuto = (localStorage.getItem(LS_KEY_AUTO_OPEN) || 'false') === 'true';
+    toggleAuto.checked = savedAuto;
 
+    const savedOpenAll = (localStorage.getItem(LS_KEY_OPEN_ALL_ON_QUICK) || 'false') === 'true';
+    toggleOpenAll.checked = savedOpenAll;
+
+    // Események
     btn.addEventListener('click', openSettings);
     closeX.addEventListener('click', closeSettings);
     backdrop.addEventListener('click', closeSettings);
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeSettings(); });
 
-    toggle.addEventListener('change', ()=>{ localStorage.setItem(LS_KEY_AUTO_OPEN, toggle.checked ? 'true' : 'false'); });
+    toggleAuto.addEventListener('change', ()=>{ localStorage.setItem(LS_KEY_AUTO_OPEN, toggleAuto.checked ? 'true' : 'false'); });
+    toggleOpenAll.addEventListener('change', ()=>{ localStorage.setItem(LS_KEY_OPEN_ALL_ON_QUICK, toggleOpenAll.checked ? 'true' : 'false'); });
   })();
 
-  function isMobileView(){ return window.matchMedia('(max-width: 600px)').matches; }
+  // Eszköz/nézet detektálás egyszerűsített
+  function isMobileView(){
+    return window.matchMedia('(max-width: 600px)').matches;
+  }
 
+  // Popup – mobilon középre modál, PC-n toast
   function showPopupHint(){
     if (isMobileView()){
       const backdrop = document.createElement('div');
@@ -1111,6 +1153,7 @@
     }
   }
 
+  // Összegyűjti a linkeket az URL/hidden alapján
   function collectBookmakerUrls(){
     const keys = [_getBookVal('odds1Book'), _getBookVal('odds2Book')].filter(Boolean);
     const seen = new Set();
@@ -1127,6 +1170,7 @@
     return urls;
   }
 
+  // Betöltéskori automatikus nyitás (ha bekapcsolva)
   function maybeAutoOpenLinks(){
     const enabled = (localStorage.getItem(LS_KEY_AUTO_OPEN) || 'false') === 'true';
     if (!enabled) return;
@@ -1154,6 +1198,7 @@
     setTimeout(maybeAutoOpenLinks, 300);
   });
 
+  // Hidden oddsBook mezők figyelése
   window.addEventListener('DOMContentLoaded', () => {
     ['odds1Book','odds2Book'].forEach(id=>{
       const el = document.getElementById(id);
@@ -1169,9 +1214,11 @@
     });
   });
 
+  // ==== Szerkeszthető tétek + F1/F2 badge ====
   function renderEditableStakes(initialStake1HUF, initialStake2HUF) {
     resultDiv.innerHTML = '';
 
+    // ODDS 1 blokk
     const row1 = document.createElement('div');
     row1.className = 'row';
 
@@ -1185,6 +1232,7 @@
     stake1Box.style.flexDirection = 'column';
     stake1Box.style.width = '100%';
 
+    // F1 badge
     const f1Text = _getHiddenVal('F1') ?? getCaseInsensitiveParam('F1');
     if (f1Text) {
       const f1Badge = document.createElement('div');
@@ -1265,19 +1313,21 @@
     row1.appendChild(label1);
     row1.appendChild(stake1Box);
 
+    // ODDS 2 blokk
     const row2 = document.createElement('div');
     row2.className = 'row';
 
     const label2 = document.createElement('span');
     label2.className = 'label-text stake-title';
     label2.id = 'stake2Label';
-    label2.textContent = `${labelOdds2.textContent} tét (${labelFor(stakeMode2)}):`;
+    label2.textContent = `${labelOdds2.textContent} tét (${labelFor(stakeMode2}):`.replace('{', '').replace('}', '');
 
     const stake2Box = document.createElement('div');
     stake2Box.style.display = 'flex';
     stake2Box.style.flexDirection = 'column';
     stake2Box.style.width = '100%';
 
+    // F2 badge
     const f2Text = _getHiddenVal('F2') ?? getCaseInsensitiveParam('F2');
     if (f2Text) {
       const f2Badge = document.createElement('div');
@@ -1358,6 +1408,7 @@
     row2.appendChild(label2);
     row2.appendChild(stake2Box);
 
+    // Profit sorok
     const rowProfit1 = document.createElement('div');
     rowProfit1.className = 'row';
     rowProfit1.id = 'profit1Row';
