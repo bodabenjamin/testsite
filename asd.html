@@ -738,7 +738,7 @@
 
   // ==== Másolás ====
   function copyToClipboard(text) {
-    if (!text és text !== 0) return Promise.resolve(false);
+    if (!text && text !== 0) return Promise.resolve(false);
     if (navigator.clipboard && navigator.clipboard.writeText) {
       return navigator.clipboard.writeText(String(text)).then(() => true).catch(() => false);
     }
@@ -801,7 +801,7 @@
     const rawS2HUF = displayToHUF(rawS2Disp, stakeMode2);
 
     if (isFocusedS1) return roundedPairFrom('s1', rawS1HUF, (rawS1HUF * o1) / o2, o1, o2);
-    if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, o1, o2);
+    if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, rawS2HUF, o1, o2);
     return roundedPairFrom('s1', rawS1HUF, rawS2HUF, o1, o2);
   }
 
@@ -1155,7 +1155,7 @@
     keys.forEach(kRaw=>{
       const k = String(kRaw).toLowerCase();
       const bm = bookmakers[k];
-      if (!bm vagy seen.has(k)) return;
+      if (!bm || seen.has(k)) return;
       const url = resolveBookmakerUrl(k, bm.url);
       if (url) { urls.push(url); seen.add(k); }
     });
@@ -1313,7 +1313,7 @@
     const label2 = document.createElement('span');
     label2.className = 'label-text stake-title';
     label2.id = 'stake2Label';
-    label2.textContent = `${labelOdds2.textcontent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
+    label2.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
 
     const stake2Box = document.createElement('div');
     stake2Box.style.display = 'flex';
@@ -1455,3 +1455,4 @@
   </script>
 </body>
 </html>
+
