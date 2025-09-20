@@ -285,8 +285,6 @@
   #bookmakerButtons .book-link { margin-top: 0; }
   @media (max-width: 400px) { #bookmakerButtons { gap: 10px; } }
 </style>
-
-
 </head>
 <body>
   <div class="calculator" role="main" aria-label="Arbitrázs kalkulátor">
@@ -394,9 +392,9 @@
     funbet:     { label: "Funbet",     url: "https://funbet.com/hu" },
     favbet:     { label: "Favbet",     url: "https://www.favbet.ro/ro/" },
     betano:     { label: "Betano",     url: "https://ro.betano.com/" },
-    superbet:   { label: "Superbet",     url: "https://superbet.ro/" },
-    fortuna:    { label: "Fortuna",     url: "https://efortuna.ro/" },
-    unibet:     { label: "Unibet",     url: "https://funbet.com/hu" }
+    superbet:   { label: "Superbet",   url: "https://superbet.ro/" },
+    fortuna:    { label: "Fortuna",    url: "https://efortuna.ro/" },
+    unibet:     { label: "Unibet",     url: "https://funbet.com/hu" } /* ha kell, cseréld a helyes linkre */
   };
 
   // --- Quick Bet link konfiguráció ---
@@ -454,7 +452,7 @@
     if (pillText) pillText.textContent = matchName;
   }
 
-  // Deviza módok a tét mezőkhöz: 'HUF' vagy 'EUR' vagy 'RON'
+  // Deviza módok: 'HUF' / 'EUR' / 'RON'
   let stakeMode1 = 'HUF';
   let stakeMode2 = 'HUF';
 
@@ -476,6 +474,9 @@
 
   let isFocusedS1 = false;
   let isFocusedS2 = false;
+
+  // kis helper a labelhez
+  const labelFor = m => (m === 'EUR' ? 'EUR' : (m === 'RON' ? 'RON' : 'Ft'));
 
   // BETÖLTÉSKOR
   window.addEventListener('DOMContentLoaded', () => {
@@ -606,17 +607,38 @@
         seen.add(key);
       });
 
-      // Gyors fogadás gomb – ha van legalább 1 iroda
+      // Gyors fogadás link + "Oldalak megnyitása egyszerre" – ha van legalább 1 iroda
       if (books.length && quickWrap) {
+        // Gyors megnyitás (külső /gyors oldalra)
         const quick = document.createElement("a");
         quick.id = "quickBetBtn";
         quick.className = "book-link";
         const quickUrls = collectBookmakerUrls();
-        quick.href = buildQuickBetLink(quickUrls); // /gyors?irodaURL=...&irodaURL=...
+        quick.href = buildQuickBetLink(quickUrls);
         quick.target = "_blank";
         quick.rel = "noopener";
         quick.textContent = "Gyors megnyitás";
         quickWrap.appendChild(quick);
+
+        // Oldalak megnyitása egyszerre – közvetlenül, egy kattintásra
+        const openAll = document.createElement("button");
+        openAll.id = "openAllBtn";
+        openAll.type = "button";
+        openAll.className = "book-link";
+        openAll.textContent = "Oldalak megnyitása egyszerre";
+        openAll.addEventListener('click', () => {
+          const urls = collectBookmakerUrls();
+          if (!urls.length) return;
+          let openedCount = 0;
+          urls.forEach(u => {
+            try {
+              const w = window.open(u, '_blank', 'noopener');
+              if (w) openedCount++;
+            } catch {}
+          });
+          if (openedCount === 0) showPopupHint();
+        });
+        quickWrap.appendChild(openAll);
       }
 
       // Iroda gombok (egymás mellett – CSS grid intézi)
@@ -923,7 +945,7 @@
 
     const nfFt = new Intl.NumberFormat('hu-HU');
 
-    // === ÚJ: RON-os kijelzés, ha mindkét tét RON módban van ===
+    // === RON-os kijelzés, ha mindkét tét RON módban van ===
     const useRON = (stakeMode1 === 'RON' && stakeMode2 === 'RON');
     const formatProfit = (amtHUF) => {
       if (!Number.isFinite(amtHUF)) return useRON ? '- RON' : '- Ft';
@@ -975,7 +997,7 @@
   function updateStakeAltDisplays() {
     if (!stake1Input || !stake2Input) return;
     const odds1 = parseFloat(odds1Field.value.replace(',', '.'));
-    const odds2 = parseFloat(odds2Field.value.replace(',', '.'));
+    the odds2 = parseFloat(odds2Field.value.replace(',', '.'));
     const [s1HUF, s2HUF] = getDisplayStakesHUF(odds1, odds2);
 
     const s1AltEl = document.getElementById('stake1Alt');
@@ -1005,7 +1027,6 @@
 
     const s1Label = document.getElementById('stake1Label');
     const s2Label = document.getElementById('stake2Label');
-    const labelFor = m => (m === 'EUR' ? 'EUR' : (m === 'RON' ? 'RON' : 'Ft'));
     if (s1Label) s1Label.textContent = `${labelOdds1.textContent} tét (${labelFor(stakeMode1)}):`;
     if (s2Label) s2Label.textContent = `${labelOdds2.textContent} tét (${labelFor(stakeMode2)}):`;
   }
@@ -1145,10 +1166,9 @@
     }
   }
 
-  // Összegyűjti a linkeket az URL alapján
+  // Összegyűjti a linkeket (hidden mezők vagy URL paramok alapján)
   function collectBookmakerUrls(){
-    const params = new URLSearchParams(window.location.search);
-    const keys = [params.get('odds1Book'), params.get('odds2Book')].filter(Boolean);
+    const keys = [_getBookVal('odds1Book'), _getBookVal('odds2Book')].filter(Boolean);
     const seen = new Set();
     const urls = [];
 
@@ -1218,7 +1238,7 @@
     const label1 = document.createElement('span');
     label1.className = 'label-text stake-title';
     label1.id = 'stake1Label';
-    label1.textContent = `${labelOdds1.textContent} tét (${stakeMode1 === 'EUR' ? 'EUR' : 'Ft'}):`;
+    label1.textContent = `${labelOdds1.textContent} tét (${labelFor(stakeMode1)}):`;
 
     const stake1Box = document.createElement('div');
     stake1Box.style.display = 'flex';
@@ -1313,7 +1333,7 @@
     const label2 = document.createElement('span');
     label2.className = 'label-text stake-title';
     label2.id = 'stake2Label';
-    label2.textContent = `${labelOdds2.textContent} tét (${stakeMode2 === 'EUR' ? 'EUR' : 'Ft'}):`;
+    label2.textContent = `${labelOdds2.textContent} tét (${labelFor(stakeMode2)}):`;
 
     const stake2Box = document.createElement('div');
     stake2Box.style.display = 'flex';
@@ -1455,4 +1475,3 @@
   </script>
 </body>
 </html>
-
