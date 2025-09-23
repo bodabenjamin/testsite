@@ -277,6 +277,11 @@
   }
   #bookmakerButtons .book-link { margin-top: 0; }
   @media (max-width: 400px) { #bookmakerButtons { gap: 10px; } }
+
+  /* Click-to-copy feedback (subtle) */
+  .match-pill{ cursor: pointer; user-select: none; outline: none; transition: box-shadow .18s ease, border-color .18s ease, background .18s ease; }
+  .match-pill.copied{ border-color: rgba(0,255,204,.38); box-shadow: 0 0 0 3px rgba(0,255,204,.10), 0 4px 18px rgba(0,255,204,.12); }
+  .match-pill.copied .text{ background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); padding: 2px 6px; border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -456,6 +461,21 @@
     }
     const pillText = document.querySelector('#matchPill .text');
     if (pillText) pillText.textContent = matchName;
+
+    // Kattintásra másolás (egyszeri bind)
+    const pillEl = document.getElementById('matchPill');
+    if (pillEl && !pillEl.dataset.copyBound) {
+      const handleCopyMatch = async () => {
+        const name = getMatchName();
+        if (!name) return;
+        try { await copyToClipboard(name); } catch {}
+        pillEl.classList.add('copied');
+        setTimeout(() => pillEl.classList.remove('copied'), 1000);
+        if (navigator.vibrate) { try { navigator.vibrate(15); } catch(_){} }
+      };
+      pillEl.addEventListener('click', handleCopyMatch);
+      pillEl.dataset.copyBound = '1';
+    }
   }
 
   // Deviza módok (HUF/EUR/RON)
@@ -822,7 +842,7 @@
     const rawS2HUF = displayToHUF(rawS2Disp, stakeMode2);
 
     if (isFocusedS1) return roundedPairFrom('s1', rawS1HUF, (rawS1HUF * o1) / o2, o1, o2);
-    if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, rawS2HUF, o1, o2);
+    if (isFocusedS2) return roundedPairFrom('s2', (rawS2HUF * o2) / o1, o1, o2);
     return roundedPairFrom('s1', rawS1HUF, rawS2HUF, o1, o2);
   }
 
@@ -1469,4 +1489,3 @@
   </script>
 </body>
 </html>
-
